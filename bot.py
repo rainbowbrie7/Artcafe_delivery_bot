@@ -7,7 +7,7 @@ from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 
-# Токен бота та ID чату менеджерів
+# Новий актуальний токен бота та ID чату менеджерів
 API_TOKEN = '8795191412:AAFVg6NZGR5jb9b9rDvhfBRP6x4jZ1-XYOs'
 CHAT_ID_MANAGERS = '1840124533'
 
@@ -18,7 +18,7 @@ WEB_APP_URL = "https://irinamanik.com/cafe/index.html"
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
 
-# Включаємо логування, щоб бачити помилки в консолі
+# Включаємо логування, щоб бачити помилки в консолі Render
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 
 class OrderStates(StatesGroup):
@@ -43,7 +43,7 @@ async def send_welcome(message: types.Message):
         reply_markup=inline_keyboard
     )
 
-# 2. Обробка отриманої корзини з Web App
+# 2. Обробка отриманої корзини з Web App через стандартний метод Telegram (якщо відкрили з інлайн-кнопки)
 @dp.message(F.web_app_data)
 async def handle_web_app_data(message: types.Message, state: FSMContext):
     try:
@@ -62,6 +62,7 @@ async def handle_web_app_data(message: types.Message, state: FSMContext):
         await message.answer("📍 Чудово! Виберіть номер вашого будинку в нашому ЖК:", reply_markup=keyboard)
         await state.set_state(OrderStates.waiting_for_house)
     except Exception as e:
+        logging.error(f"Error in handle_web_app_data: {e}")
         await message.answer("❌ Виникла помилка при обробці кошика. Спробуйте ще раз.")
 
 # 3. Етап: Вибір будинку
@@ -109,7 +110,7 @@ async def process_phone(message: types.Message, state: FSMContext):
     await message.answer("🎟️ Якщо у вас є промокод, напишіть його. Якщо немає — натисніть 'Пропустити':", reply_markup=keyboard)
     await state.set_state(OrderStates.waiting_for_promo)
 
-# 7. Фінал: Промокод, прорахунок знижки та відправка замовлення
+# 7. Фінал: Промокод, прорахунок знижки та відправка замовлення клієнту та менеджерам
 @dp.message(OrderStates.waiting_for_promo)
 async def process_promo(message: types.Message, state: FSMContext):
     promo = message.text.strip().lower()
@@ -143,11 +144,11 @@ async def process_promo(message: types.Message, state: FSMContext):
         f"💵 <b>Разом до сплати:</b> {total_sum} грн\n"
     )
 
-    manager_report = f"🔔 <b>НОВЕ ЗАМОВЛЕННЯ З КАВ'ЯРНІ!</b>\n━━━━━━━━━━━━━━━━━━━━━\\n\\n👤 <b>Клієнт:</b> {message.from_user.full_name}\n{order_details}━━━━━━━━━━━━━━━━━━━━━"
+    manager_report = f"🔔 <b>НОВЕ ЗАМОВЛЕННЯ З КАВ'ЯРНІ!</b>\n━━━━━━━━━━━━━━━━━━━━━\n\n👤 <b>Клієнт:</b> {message.from_user.full_name}\n{order_details}━━━━━━━━━━━━━━━━━━━━━"
     try:
-        await bot.send_message(chat_id=CHAT_ID_MANAGERS, text=manager_report, parse_mode=\"HTML\")
-    except:
-        pass
+        await bot.send_message(chat_id=CHAT_ID_MANAGERS, text=manager_report, parse_mode="HTML")
+    except Exception as e:
+        logging.error(f"Error sending message to managers: {e}")
 
     client_report = f"🎉 <b>Ваше замовлення успішно прийнято!</b>\n\nМенеджер вже передав чек бариста, а кур'єр готується до виїзду. Ваш чек 👇\n━━━━━━━━━━━━━━━━━━━━━\n{order_details}━━━━━━━━━━━━━━━━━━━━━\n\nДякуємо, що ви з нами! 😊"
     
@@ -162,7 +163,7 @@ async def main():
     
     from aiohttp import web
     
-    # Обработчик, который поймает заказ с сайта и включит диалог с клиентом
+    # Обробник, який ловить замовлення з сайту (fetch з будь-якої кнопки меню)
     async def web_order_handler(request):
         try:
             data = await request.json()
@@ -170,8 +171,7 @@ async def main():
             first_name = data['first_name']
             order_content = data['order']
             
-            # Имитируем, что пользователь прислал нам корзину, и запускаем опрос дома
-            from aiogram.fsm.context import FSMContext
+            # Ініціалізуємо стан FSM для конкретного користувача, записуємо кошик і переводимо на вибір будинку
             state_ctx = dp.fsm.resolve_context(bot, chat_id=user_id, user_id=user_id)
             await state_ctx.update_data(cart=order_content['products'], total=order_content['total'])
             await state_ctx.set_state(OrderStates.waiting_for_house)
@@ -185,7 +185,7 @@ async def main():
                 one_time_keyboard=True
             )
             
-            # Пишем пользователю прямо в чат Telegram!
+            # Надсилаємо повідомлення безпосередньо в чат користувачу
             await bot.send_message(
                 chat_id=user_id, 
                 text=f"🛒 <b>Замовлення зафіксовано!</b>\n\nПривіт, {first_name}! Виберіть номер вашого будинку в нашому ЖК для доставки:",
@@ -199,7 +199,7 @@ async def main():
         
     app = web.Application()
     app.router.add_get("/", lambda r: web.Response(text="Bot is running!"))
-    app.router.add_post("/submit-order", web_order_handler) # Регистрируем путь для обработки заказов
+    app.router.add_post("/submit-order", web_order_handler) # Шлях для обробки кошика з сайту
     
     runner = web.AppRunner(app)
     await runner.setup()
