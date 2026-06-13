@@ -158,23 +158,54 @@ async def process_promo(message: types.Message, state: FSMContext):
 
 # НАДІЙНИЙ ЗАПУСК БОТА ТА МІНІ-ВЕБСЕРВЕРА ДЛЯ RENDER
 async def main():
-    # Видаляємо старі вебхуки
     await bot.delete_webhook(drop_pending_updates=True)
     
-    # Запуск вбудованого веб-сервера aiohttp, щоб Render бачив порт 10000
     from aiohttp import web
     
-    async def dummy_handler(request):
-        return web.Response(text="Bot is running perfectly on Render!")
+    # Обработчик, который поймает заказ с сайта и включит диалог с клиентом
+    async def web_order_handler(request):
+        try:
+            data = await request.json()
+            user_id = data['user_id']
+            first_name = data['first_name']
+            order_content = data['order']
+            
+            # Имитируем, что пользователь прислал нам корзину, и запускаем опрос дома
+            from aiogram.fsm.context import FSMContext
+            state_ctx = dp.fsm.resolve_context(bot, chat_id=user_id, user_id=user_id)
+            await state_ctx.update_data(cart=order_content['products'], total=order_content['total'])
+            await state_ctx.set_state(OrderStates.waiting_for_house)
+            
+            keyboard = types.ReplyKeyboardMarkup(
+                keyboard=[
+                    [types.KeyboardButton(text="Будинок 1"), types.KeyboardButton(text="Будинок 3")],
+                    [types.KeyboardButton(text="Будинок 3а"), types.KeyboardButton(text="Будинок 5")]
+                ],
+                resize_keyboard=True,
+                one_time_keyboard=True
+            )
+            
+            # Пишем пользователю прямо в чат Telegram!
+            await bot.send_message(
+                chat_id=user_id, 
+                text=f"🛒 <b>Замовлення зафіксовано!</b>\n\nПривіт, {first_name}! Виберіть номер вашого будинку в нашому ЖК для доставки:",
+                reply_markup=keyboard,
+                parse_mode="HTML"
+            )
+            return web.Response(text="OK")
+        except Exception as e:
+            logging.error(f"Error in web_order_handler: {e}")
+            return web.Response(text="Error", status=500)
         
     app = web.Application()
-    app.router.add_get("/", dummy_handler)
+    app.router.add_get("/", lambda r: web.Response(text="Bot is running!"))
+    app.router.add_post("/submit-order", web_order_handler) # Регистрируем путь для обработки заказов
+    
     runner = web.AppRunner(app)
     await runner.setup()
     site = web.TCPSite(runner, "0.0.0.0", 10000)
-    asyncio.create_task(site.start()) # Запуск веб-сервера у фоні
+    asyncio.create_task(site.start())
 
-    # Запуск безкінечного опитування Telegram (Polling)
     await dp.start_polling(bot)
 
 if __name__ == '__main__':
