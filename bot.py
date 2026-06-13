@@ -27,7 +27,7 @@ class OrderStates(StatesGroup):
     waiting_for_apartment = State()
     waiting_for_phone = State()
     waiting_for_promo = State()
-    waiting_for_payment = State() # Новий крок для вибору оплати
+    waiting_for_payment = State()
 
 # 1. Головне меню при запуску бота (/start)
 @dp.message(CommandStart())
@@ -90,7 +90,7 @@ async def process_apartment(message: types.Message, state: FSMContext):
         resize_keyboard=True,
         one_time_keyboard=True
     )
-    await message.answer("📞 Натисніть кнопку нижче, щоб надіслати ваш номер телефону для зв'язку:", reply_markup=keyboard)
+    await message.answer("📞 Натисніть кнопку нижче, щоб надiслати ваш номер телефону для зв'язку:", reply_markup=keyboard)
     await state.set_state(OrderStates.waiting_for_phone)
 
 # 6. Етап: Отримання телефону
@@ -143,12 +143,16 @@ async def process_payment(message: types.Message, state: FSMContext):
     phone = user_data.get('phone')
     promo = user_data.get('promo', '')
 
-    # Розрахунок промокоду
+    # Розрахунок активованого промокоду navigator10
     discount_text = ""
-    if promo == "artcafe":
+    if promo == "navigator10" or promo == "navigator":
         discount = total_sum * 0.10
         total_sum = total_sum - discount
-        discount_text = f"🔥 <b>Промокод застосовано:</b> -10% (-{discount} грн)\n"
+        discount_text = f"🔥 <b>Промокод застосовано (navigator10):</b> -10% (-{discount} грн)\n"
+    elif promo == "artcafe":
+        discount = total_sum * 0.10
+        total_sum = total_sum - discount
+        discount_text = f"🔥 <b>Промокод застосовано (artcafe):</b> -10% (-{discount} грн)\n"
 
     # Формування списку товарів
     items_text = ""
@@ -188,7 +192,7 @@ async def process_payment(message: types.Message, state: FSMContext):
     await message.answer(client_report, parse_mode="HTML", reply_markup=return_keyboard)
 
 
-# НАДІЙНИЙ ЗАПУСК БОТА ТА МІНІ-ВЕБСЕРВЕРА З ДОЗВОЛОМ CORS ДЛЯ RENDER
+# НАДІЙНИЙ ЗАПУСК БОТА ТА МІНІ-ВЕБСЕРВЕРА З ДОЗВОЛОМ CORS
 async def main():
     await bot.delete_webhook(drop_pending_updates=True)
     
