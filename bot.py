@@ -135,7 +135,7 @@ async def process_promo(message: types.Message, state: FSMContext):
         items_text += f"▪️ {item['name']} x{item['count']} — {item['price'] * item['count']} грн\n"
 
     order_details = (
-        f"📍 <b>Адреса доставки:</b> ЖК 'Ярославів Град'\n"
+        f"📍 <b>Адреса доставки:</b> ЖК 'Навігатор'\n"
         f"🏠 <b>Будинок:</b> {house} | 🏢 <b>Поверх:</b> {floor} | 🚪 <b>Кв:</b> {apartment}\n"
         f"📞 <b>Телефон:</b> {phone}\n\n"
         f"📦 <b>Склад замовлення:</b>\n"
