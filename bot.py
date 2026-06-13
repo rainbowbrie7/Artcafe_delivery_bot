@@ -27,6 +27,7 @@ class OrderStates(StatesGroup):
     waiting_for_apartment = State()
     waiting_for_phone = State()
     waiting_for_promo = State()
+    waiting_for_payment = State() # Новий крок для вибору оплати
 
 # 1. Головне меню при запуску бота (/start)
 @dp.message(CommandStart())
@@ -110,10 +111,27 @@ async def process_phone(message: types.Message, state: FSMContext):
     await message.answer("🎟️ Якщо у вас є промокод, напишіть його. Якщо немає — натисніть 'Пропустити':", reply_markup=keyboard)
     await state.set_state(OrderStates.waiting_for_promo)
 
-# 7. Фінал: Промокод, прорахунок знижки та надсилання замовлення
+# 7. Етап: Промокод та перехід до вибору оплати
 @dp.message(OrderStates.waiting_for_promo)
 async def process_promo(message: types.Message, state: FSMContext):
     promo = message.text.strip().lower()
+    await state.update_data(promo=promo)
+
+    keyboard = types.ReplyKeyboardMarkup(
+        keyboard=[
+            [types.KeyboardButton(text="Готівка")],
+            [types.KeyboardButton(text="Безготівкова оплата")]
+        ],
+        resize_keyboard=True,
+        one_time_keyboard=True
+    )
+    await message.answer("💳 <b>Виберіть зручний спосіб оплати:</b>", parse_mode="HTML", reply_markup=keyboard)
+    await state.set_state(OrderStates.waiting_for_payment)
+
+# 8. Фінал: Отримання способу оплати, прорахунок та надсилання чеків
+@dp.message(OrderStates.waiting_for_payment)
+async def process_payment(message: types.Message, state: FSMContext):
+    payment_method = message.text.strip()
     user_data = await state.get_data()
     await state.clear()
 
@@ -123,34 +141,46 @@ async def process_promo(message: types.Message, state: FSMContext):
     floor = user_data.get('floor')
     apartment = user_data.get('apartment')
     phone = user_data.get('phone')
+    promo = user_data.get('promo', '')
 
+    # Розрахунок промокоду
     discount_text = ""
     if promo == "artcafe":
         discount = total_sum * 0.10
         total_sum = total_sum - discount
         discount_text = f"🔥 <b>Промокод застосовано:</b> -10% (-{discount} грн)\n"
 
+    # Формування списку товарів
     items_text = ""
     for item_id, item in cart.items():
         items_text += f"▪️ {item['name']} x{item['count']} — {item['price'] * item['count']} грн\n"
 
+    # Додаткове інформаційне повідомлення клієнту, якщо обрано безнал
+    info_payment_msg = ""
+    if payment_method == "Безготівкова оплата":
+        info_payment_msg = "ℹ️ <i>Після підтвердження замовлення менеджер надішле вам посилання на оплату в цей чат.</i>\n\n"
+
+    # Загальний шаблон деталей замовлення
     order_details = (
         f"📍 <b>Адреса доставки:</b> ЖК 'Навігатор'\n"
         f"🏠 <b>Будинок:</b> {house} | 🏢 <b>Поверх:</b> {floor} | 🚪 <b>Кв:</b> {apartment}\n"
-        f"📞 <b>Телефон:</b> {phone}\n\n"
+        f"📞 <b>Телефон:</b> {phone}\n"
+        f"💳 <b>Форма оплати:</b> {payment_method}\n\n"
         f"📦 <b>Склад замовлення:</b>\n"
         f"{items_text}\n"
         f"{discount_text}"
         f"💵 <b>Разом до сплати:</b> {total_sum} грн\n"
     )
 
+    # Звіт для менеджерів
     manager_report = f"🔔 <b>НОВЕ ЗАМОВЛЕННЯ З КАВ'ЯРНІ!</b>\n━━━━━━━━━━━━━━━━━━━━━\n\n👤 <b>Клієнт:</b> {message.from_user.full_name if message.from_user.full_name else 'Користувач'}\n{order_details}━━━━━━━━━━━━━━━━━━━━━"
     try:
         await bot.send_message(chat_id=CHAT_ID_MANAGERS, text=manager_report, parse_mode="HTML")
     except Exception as e:
         logging.error(f"Error sending to manager: {e}")
 
-    client_report = f"🎉 <b>Ваше замовлення успішно прийнято!</b>\n\nМенеджер вже передав чек бариста, а кур'єр готується до виїзду. Ваш чек 👇\n━━━━━━━━━━━━━━━━━━━━━\n{order_details}━━━━━━━━━━━━━━━━━━━━━\n\nДякуємо, що ви з нами! 😊"
+    # Чек для клієнта
+    client_report = f"🎉 <b>Ваше замовлення успішно прийнято!</b>\n\n{info_payment_msg}Менеджер вже передав чек бариста, а кур'єр готується до виїзду. Ваш чек 👇\n━━━━━━━━━━━━━━━━━━━━━\n{order_details}━━━━━━━━━━━━━━━━━━━━━\n\nДякуємо, що ви з нами! 😊"
     
     return_keyboard = types.InlineKeyboardMarkup(
         inline_keyboard=[[types.InlineKeyboardButton(text="🛒 Відкрити Меню Кав'ярні", web_app=types.WebAppInfo(url=WEB_APP_URL))]]
@@ -164,7 +194,6 @@ async def main():
     
     from aiohttp import web
     
-    # Головний обробник замовлень, який викликається сайтом через fetch
     async def web_order_handler(request):
         try:
             data = await request.json()
@@ -172,7 +201,6 @@ async def main():
             first_name = data['first_name']
             order_content = data['order']
             
-            # Встановлюємо FSM контекст для клієнта, зберігаємо кошик і переводимо на крок вибору будинку
             state_ctx = dp.fsm.resolve_context(bot, chat_id=user_id, user_id=user_id)
             await state_ctx.update_data(cart=order_content['products'], total=order_content['total'])
             await state_ctx.set_state(OrderStates.waiting_for_house)
@@ -186,7 +214,6 @@ async def main():
                 one_time_keyboard=True
             )
             
-            # Пишемо користувачу в чат Телеграм
             await bot.send_message(
                 chat_id=user_id, 
                 text=f"🛒 <b>Замовлення зафіксовано!</b>\n\nПривіт, {first_name}! Виберіть номер вашого будинку в нашому ЖК для доставки:",
@@ -194,7 +221,6 @@ async def main():
                 parse_mode="HTML"
             )
             
-            # Додаємо CORS заголовки відповіді
             headers = {
                 "Access-Control-Allow-Origin": "*",
                 "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
@@ -206,7 +232,6 @@ async def main():
             logging.error(f"Error in web_order_handler: {e}")
             return web.Response(text="Error", status=500, headers={"Access-Control-Allow-Origin": "*"})
 
-    # Обробник для попередніх CORS-запитів браузера (OPTIONS)
     async def web_options_handler(request):
         headers = {
             "Access-Control-Allow-Origin": "*",
@@ -225,7 +250,6 @@ async def main():
     site = web.TCPSite(runner, "0.0.0.0", 10000)
     asyncio.create_task(site.start()) 
 
-    # Починаємо забирати повідомлення з Telegram
     await dp.start_polling(bot)
 
 if __name__ == '__main__':
