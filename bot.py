@@ -12,7 +12,7 @@ API_TOKEN = '8795191412:AAFVg6NZGR5jb9b9rDvhfBRP6x4jZ1-XYOs'
 CHAT_ID_MANAGERS = '1840124533'
 
 # Нова сторінка меню, яка тепер розміщена на GitHub Pages
-WEB_APP_URL = "https://dimanyk.github.io/artcafe-delivery-bot/index.html"
+WEB_APP_URL = "https://rainbowbrie7.github.io/Artcafe_delivery_bot/index.html"
 
 # Ініціалізація бота та диспетчера
 bot = Bot(token=API_TOKEN)
