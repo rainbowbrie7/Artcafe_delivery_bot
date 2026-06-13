@@ -8,7 +8,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 
 # Токен бота та ID чату менеджерів
-API_TOKEN = '8795191412:AAGSKwjh_HYtZrurDq4A-OikTYblBmBDl4Y'
+API_TOKEN = '8795191412:AAFVg6NZGR5jb9b9rDvhfBRP6x4jZ1-XYOs'
 CHAT_ID_MANAGERS = '1840124533'
 
 # Актуальне посилання на твоє Web App меню
