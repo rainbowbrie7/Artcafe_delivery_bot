@@ -11,8 +11,8 @@ from aiogram.fsm.state import State, StatesGroup
 API_TOKEN = '8795191412:AAFVg6NZGR5jb9b9rDvhfBRP6x4jZ1-XYOs'
 CHAT_ID_MANAGERS = '1840124533'
 
-# Актуальне посилання на твоє Web App меню
-WEB_APP_URL = "https://irinamanik.com/cafe/index.html"
+# Нова сторінка меню, яка тепер розміщена на GitHub Pages
+WEB_APP_URL = "https://dimanyk.github.io/artcafe-delivery-bot/index.html"
 
 # Ініціалізація бота та диспетчера
 bot = Bot(token=API_TOKEN)
@@ -160,7 +160,6 @@ async def process_promo(message: types.Message, state: FSMContext):
 
 # НАДІЙНИЙ ЗАПУСК БОТА ТА МІНІ-ВЕБСЕРВЕРА З ДОЗВОЛОМ CORS ДЛЯ RENDER
 async def main():
-    # Очищуємо старі завислі вебхуки
     await bot.delete_webhook(drop_pending_updates=True)
     
     from aiohttp import web
@@ -195,7 +194,7 @@ async def main():
                 parse_mode="HTML"
             )
             
-            # Додаємо CORS заголовки відповіді, щоб браузер на irinamanik.com не лаявся
+            # Додаємо CORS заголовки відповіді
             headers = {
                 "Access-Control-Allow-Origin": "*",
                 "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
@@ -207,7 +206,7 @@ async def main():
             logging.error(f"Error in web_order_handler: {e}")
             return web.Response(text="Error", status=500, headers={"Access-Control-Allow-Origin": "*"})
 
-    # Обов'язковий обробник для попередніх CORS-запитів браузера (OPTIONS)
+    # Обробник для попередніх CORS-запитів браузера (OPTIONS)
     async def web_options_handler(request):
         headers = {
             "Access-Control-Allow-Origin": "*",
@@ -218,13 +217,13 @@ async def main():
         
     app = web.Application()
     app.router.add_get("/", lambda r: web.Response(text="Bot is running!"))
-    app.router.add_post("/submit-order", web_order_handler)      # Приймаємо кошики
-    app.router.add_options("/submit-order", web_options_handler)   # Дозволяємо крос-доменні запити
+    app.router.add_post("/submit-order", web_order_handler)      
+    app.router.add_options("/submit-order", web_options_handler)   
     
     runner = web.AppRunner(app)
     await runner.setup()
     site = web.TCPSite(runner, "0.0.0.0", 10000)
-    asyncio.create_task(site.start()) # Сервер крутиться на порту 10000 у фоні
+    asyncio.create_task(site.start()) 
 
     # Починаємо забирати повідомлення з Telegram
     await dp.start_polling(bot)
