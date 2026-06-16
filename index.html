@@ -733,7 +733,7 @@
             const firstName = initDataUnsafe.user ? initDataUnsafe.user.first_name : "Клієнт";
 
             if (userId) {
-                // ЗАМЕНИ АДРЕС НИЖЕ НА СВОЙ АДРЕС С ПАНЕЛИ RENDER!
+                // Отправляем данные на ваш Render
                 fetch('https://artcafe-delivery-bot.onrender.com/submit-order', {
                     method: 'POST',
                     headers: {
@@ -744,10 +744,16 @@
                         first_name: firstName,
                         order: orderData
                     })
-                })
-                .then(() => {
-                    // Закрываем шторку только ПОСЛЕ того, как запрос ушел на Render
-                    tg.close();
+                });
+
+                // МГНОВЕННО закрываем шторку меню, чтобы пользователь увидел сообщения бота в чате
+                tg.close();
+                
+            } else {
+                // Если зашли с обычного браузера компьютера
+                tg.sendData(JSON.stringify(orderData));
+                tg.close();
+            }
                 })
                 .catch((err) => {
                     alert("Помилка відправки: " + err);
