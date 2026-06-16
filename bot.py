@@ -11,14 +11,14 @@ from aiogram.fsm.state import State, StatesGroup
 API_TOKEN = '8795191412:AAFVg6NZGR5jb9b9rDvhfBRP6x4jZ1-XYOs'
 CHAT_ID_MANAGERS = '1840124533'
 
-# Нова сторінка меню, яка тепер розміщена на GitHub Pages
+# Нова сторінка меню, яка розміщена на GitHub Pages
 WEB_APP_URL = "https://rainbowbrie7.github.io/Artcafe_delivery_bot/index.html"
 
 # Ініціалізація бота та диспетчера
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
 
-# Включаємо логування, щоб бачити все в консолі Render
+# Включаємо логування
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 
 class OrderStates(StatesGroup):
@@ -31,7 +31,8 @@ class OrderStates(StatesGroup):
 
 # 1. Головне меню при запуску бота (/start)
 @dp.message(CommandStart())
-async def send_welcome(message: types.Message):
+async def send_welcome(message: types.Message, state: FSMContext):
+    await state.clear() # Скидаємо стан примусово при старті
     inline_keyboard = types.InlineKeyboardMarkup(
         inline_keyboard=[
             [types.InlineKeyboardButton(text="🛒 Відкрити Меню Кав'ярні", web_app=types.WebAppInfo(url=WEB_APP_URL))]
@@ -48,6 +49,7 @@ async def send_welcome(message: types.Message):
 @dp.message(F.web_app_data)
 async def handle_web_app_data(message: types.Message, state: FSMContext):
     try:
+        await state.clear() # Очищаємо старі замовлення
         raw_data = message.web_app_data.data
         order_json = json.loads(raw_data)
         await state.update_data(cart=order_json['products'], total=order_json['total'])
@@ -133,7 +135,7 @@ async def process_promo(message: types.Message, state: FSMContext):
 async def process_payment(message: types.Message, state: FSMContext):
     payment_method = message.text.strip()
     user_data = await state.get_data()
-    await state.clear()
+    await state.clear() # Повністю чистимо стан після успішного замовлення!
 
     cart = user_data.get('cart', {})
     total_sum = user_data.get('total', 0)
@@ -143,7 +145,7 @@ async def process_payment(message: types.Message, state: FSMContext):
     phone = user_data.get('phone')
     promo = user_data.get('promo', '')
 
-    # Розрахунок активованого промокоду navigator10
+    # Розрахунок активованого промокоду
     discount_text = ""
     if promo == "navigator10" or promo == "navigator":
         discount = total_sum * 0.10
@@ -159,14 +161,13 @@ async def process_payment(message: types.Message, state: FSMContext):
     for item_id, item in cart.items():
         items_text += f"▪️ {item['name']} x{item['count']} — {item['price'] * item['count']} грн\n"
 
-    # Додаткове інформаційне повідомлення клієнту, якщо обрано безнал
+    # Додаткове повідомлення для безготівки
     info_payment_msg = ""
     if payment_method == "Безготівкова оплата":
         info_payment_msg = "ℹ️ <i>Після підтвердження замовлення менеджер надішле вам посилання на оплату в цей чат.</i>\n\n"
 
-    # Загальний шаблон деталей замовлення
     order_details = (
-        f"📍 <b>Адреса доставки:</b> ЖК 'Навігатор'\n"
+        f"📍 <b>Адреса доставки:</b> ЖК 'Ярославів Град'\n"
         f"🏠 <b>Будинок:</b> {house} | 🏢 <b>Поверх:</b> {floor} | 🚪 <b>Кв:</b> {apartment}\n"
         f"📞 <b>Телефон:</b> {phone}\n"
         f"💳 <b>Форма оплати:</b> {payment_method}\n\n"
@@ -176,14 +177,12 @@ async def process_payment(message: types.Message, state: FSMContext):
         f"💵 <b>Разом до сплати:</b> {total_sum} грн\n"
     )
 
-    # Звіт для менеджерів
     manager_report = f"🔔 <b>НОВЕ ЗАМОВЛЕННЯ З КАВ'ЯРНІ!</b>\n━━━━━━━━━━━━━━━━━━━━━\n\n👤 <b>Клієнт:</b> {message.from_user.full_name if message.from_user.full_name else 'Користувач'}\n{order_details}━━━━━━━━━━━━━━━━━━━━━"
     try:
         await bot.send_message(chat_id=CHAT_ID_MANAGERS, text=manager_report, parse_mode="HTML")
     except Exception as e:
         logging.error(f"Error sending to manager: {e}")
 
-    # Чек для клієнта
     client_report = f"🎉 <b>Ваше замовлення успішно прийнято!</b>\n\n{info_payment_msg}Менеджер вже передав чек бариста, а кур'єр готується до виїзду. Ваш чек 👇\n━━━━━━━━━━━━━━━━━━━━━\n{order_details}━━━━━━━━━━━━━━━━━━━━━\n\nДякуємо, що ви з нами! 😊"
     
     return_keyboard = types.InlineKeyboardMarkup(
@@ -205,7 +204,12 @@ async def main():
             first_name = data['first_name']
             order_content = data['order']
             
+            # ОТ ТУТ — ГОЛОВНЕ ОНОВЛЕННЯ:
+            # Перед кожним новим замовленням з сайту примусово чистимо старі завислі стани користувача!
             state_ctx = dp.fsm.resolve_context(bot, chat_id=user_id, user_id=user_id)
+            await state_ctx.clear()
+            
+            # Записуємо нову корзину і вмикаємо крок вибору будинку
             await state_ctx.update_data(cart=order_content['products'], total=order_content['total'])
             await state_ctx.set_state(OrderStates.waiting_for_house)
             
