@@ -19,11 +19,11 @@
             color: var(--text-color);
             margin: 0;
             padding: 10px;
-            padding-top: 70px; /* Отступ под фиксированные категории */
+            padding-top: 70px; /* Відступ під фіксовані категорії */
             padding-bottom: 100px;
         }
         
-        /* Фиксированная плашка с категориями вверху */
+        /* Фіксована плашка з категоріями вгорі */
         .category-tabs {
             position: fixed;
             top: 0;
@@ -39,7 +39,7 @@
             scroll-behavior: smooth;
         }
         .category-tabs::-webkit-scrollbar {
-            display: none; /* Прячем горизонтальный скроллбар */
+            display: none; /* Ховаємо горизонтальний скроллбар */
         }
         .tab-btn {
             background: #eddcd2;
@@ -713,7 +713,7 @@
             }
         }
 
-        /// НАДЕЖНЫЙ СПОСОБ ОТПРАВКИ С ЛЮБОЙ КНОПКИ (ЧЕРЕЗ FETCH НА RENDER)
+        // НАДІЙНИЙ СПОСОБ ВІДПРАВКИ (З КОРЕКТНИМ ЗАКРИТТЯМ ШТОРКИ)
         tg.onEvent('mainButtonClicked', function(){
             let totalSum = 0;
             for (let id in cart) {
@@ -727,13 +727,11 @@
                 total: totalSum
             };
 
-            // Получаем ID пользователя, чтобы бот знал, кому отвечать
             const initDataUnsafe = tg.initDataUnsafe;
             const userId = initDataUnsafe.user ? initDataUnsafe.user.id : null;
             const firstName = initDataUnsafe.user ? initDataUnsafe.user.first_name : "Клієнт";
 
             if (userId) {
-                // Отправляем данные на ваш Render
                 fetch('https://artcafe-delivery-bot.onrender.com/submit-order', {
                     method: 'POST',
                     headers: {
@@ -745,21 +743,8 @@
                         order: orderData
                     })
                 });
-
-                // МГНОВЕННО закрываем шторку меню, чтобы пользователь увидел сообщения бота в чате
                 tg.close();
-                
             } else {
-                // Если зашли с обычного браузера компьютера
-                tg.sendData(JSON.stringify(orderData));
-                tg.close();
-            }
-                })
-                .catch((err) => {
-                    alert("Помилка відправки: " + err);
-                });
-            } else {
-                // Если зашли не с телефона, а просто с браузера
                 tg.sendData(JSON.stringify(orderData));
                 tg.close();
             }
