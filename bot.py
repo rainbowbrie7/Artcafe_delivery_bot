@@ -167,7 +167,7 @@ async def process_payment(message: types.Message, state: FSMContext):
         info_payment_msg = "ℹ️ <i>Після підтвердження замовлення менеджер надішле вам посилання на оплату в цей чат.</i>\n\n"
 
     order_details = (
-        f"📍 <b>Адреса доставки:</b> ЖК 'Ярославів Град'\n"
+        f"📍 <b>Адреса доставки:</b> ЖК 'Навігатор'\n"
         f"🏠 <b>Будинок:</b> {house} | 🏢 <b>Поверх:</b> {floor} | 🚪 <b>Кв:</b> {apartment}\n"
         f"📞 <b>Телефон:</b> {phone}\n"
         f"💳 <b>Форма оплати:</b> {payment_method}\n\n"
