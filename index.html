@@ -14,7 +14,7 @@
             --desc-color: #7a6b5e;
         }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
@@ -30,682 +30,371 @@
             left: 0;
             right: 0;
             background-color: var(--bg-color);
-            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
-            padding: 10px;
             display: flex;
             overflow-x: auto;
-            gap: 8px;
-            z-index: 999;
-            scroll-behavior: smooth;
+            gap: 10px;
+            padding: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            z-index: 1000;
+            scrollbar-width: none; /* Сховати скроллбар для Firefox */
         }
         .category-tabs::-webkit-scrollbar {
-            display: none; /* Ховаємо горизонтальний скроллбар */
+            display: none; /* Сховати скроллбар для Chrome/Safari */
         }
-        .tab-btn {
-            background: #eddcd2;
-            color: var(--text-color);
-            border: none;
-            padding: 8px 14px;
-            border-radius: 15px;
-            font-size: 13px;
-            font-weight: bold;
+        .category-tab {
+            padding: 8px 16px;
+            background-color: var(--card-bg);
+            border: 1px solid #e6dfd9;
+            border-radius: 20px;
             white-space: nowrap;
             cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--desc-color);
             transition: all 0.2s ease;
         }
-        .tab-btn.active {
-            background: var(--accent-color);
-            color: white;
+        .category-tab.active {
+            background-color: var(--accent-color);
+            color: #ffffff;
+            border-color: var(--accent-color);
         }
 
-        .header { text-align: center; padding: 10px 0; }
-        .header h1 { margin: 0; font-size: 26px; color: var(--accent-color); }
-        .info-box { background: #eddcd2; padding: 10px; border-radius: 8px; font-size: 13px; text-align: center; margin-bottom: 20px; }
-        
-        .category-title { font-size: 20px; font-weight: bold; border-left: 4px solid var(--accent-color); padding-left: 10px; margin: 30px 0 15px 0; color: var(--accent-color); clear: both; scroll-margin-top: 80px; }
-        
-        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .item-card { background: var(--card-bg); border-radius: 12px; padding: 10px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.04); display: flex; flex-direction: column; justify-content: space-between; }
-        
-        .item-img { width: 100%; height: 110px; background: #f4ece6; border-radius: 8px; margin-bottom: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-        .item-img img { width: 100%; height: 100%; object-fit: cover; }
-        
-        .item-title { font-weight: bold; font-size: 14px; min-height: 34px; display: flex; align-items: center; justify-content: center; line-height: 1.2; }
-        .item-desc { font-size: 11px; color: var(--desc-color); margin: 4px 0; min-height: 45px; display: flex; align-items: center; justify-content: center; line-height: 1.3; }
-        .item-price { color: var(--accent-color); font-weight: bold; font-size: 15px; margin: 5px 0 8px 0; }
-        
-        .btn-add { background: var(--accent-color); color: white; border: none; padding: 8px; border-radius: 15px; font-weight: bold; width: 100%; cursor: pointer; font-size: 13px; }
-        .btn-counter { display: flex; justify-content: space-between; align-items: center; background: #e6ccb2; border-radius: 15px; overflow: hidden; font-weight: bold; }
-        .btn-counter button { background: none; border: none; padding: 8px 12px; font-weight: bold; color: var(--accent-color); font-size: 16px; cursor: pointer; }
+        /* Контейнер категорій */
+        .category-section {
+            display: none; /* За замовчуванням приховано */
+        }
+        .category-section.active {
+            display: block; /* Показуємо лише активну категорію */
+        }
+        .category-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin: 15px 5px 10px 5px;
+            color: var(--accent-color);
+            border-bottom: 2px solid #e6dfd9;
+            padding-bottom: 5px;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .product-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border: 1px solid #f0eae4;
+        }
+        .product-img {
+            width: 100%;
+            height: 110px;
+            object-fit: cover;
+            border-radius: 8px;
+            background-color: #f5ede6;
+        }
+        .product-name {
+            font-size: 15px;
+            font-weight: 600;
+            margin: 8px 0 4px 0;
+            line-height: 1.2;
+        }
+        .product-desc {
+            font-size: 11px;
+            color: var(--desc-color);
+            margin-bottom: 10px;
+            flex-grow: 1;
+        }
+        .product-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .product-price {
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--accent-color);
+        }
+        .add-btn {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .counter-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f5ede6;
+            border-radius: 20px;
+            padding: 2px 4px;
+        }
+        .counter-btn {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .counter-value {
+            font-weight: 600;
+            font-size: 14px;
+            min-width: 16px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
 
-    <div class="category-tabs" id="tabs-container">
-        <button class="tab-btn active" onclick="scrollToCategory('hot_drinks', this)">Гарячі напої</button>
-        <button class="tab-btn" onclick="scrollToCategory('cold_drinks', this)">Прохолодні напої</button>
-        <button class="tab-btn" onclick="scrollToCategory('dops', this)">Допи</button>
-        <button class="tab-btn" onclick="scrollToCategory('croissants', this)">Круасани</button>
-        <button class="tab-btn" onclick="scrollToCategory('bakery', this)">Свіжа випічка</button>
-        <button class="tab-btn" onclick="scrollToCategory('snacks', this)">Гарячі перекуси</button>
-        <button class="tab-btn" onclick="scrollToCategory('sweets', this)">Солодощі</button>
+    <div class="category-tabs" id="category-tabs">
+        <div class="category-tab active" onclick="switchCategory('coffee')">☕ Кава</div>
+        <div class="category-tab" onclick="switchCategory('tea')">🫖 Чай та інше</div>
+        <div class="category-tab" onclick="switchCategory('bakery')">🥐 Випічка</div>
+        <div class="category-tab" onclick="switchCategory('desserts')">🍰 Десерти</div>
     </div>
 
-    <div class="header">
-        <h1>☕ Наша Кав'ярня</h1>
-    </div>
-
-    <div class="info-box">
-        🛵 Безкоштовна доставка по території ЖК<br>
-        💰 Мінімальна сума замовлення: <b>300 грн</b>
-    </div>
-
-    <div class="category-title" id="hot_drinks">Гарячі напої</div>
-    <div class="menu-grid">
-        <div class="item-card">
-            <div class="item-img"><img src="images/espesso1.png" alt="Еспресо"></div>
-            <div class="item-title">Еспресо</div>
-            <div class="item-desc">арабіка 100%, 40 мл</div>
-            <div class="item-price">50 грн</div>
-            <div id="action-esp"><button class="btn-add" onclick="addToCart('esp', 'Еспресо (40 мл)', 50)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/espesso1.png" alt="Допіо"></div>
-            <div class="item-title">Допіо</div>
-            <div class="item-desc">арабіка 100%, 70 мл</div>
-            <div class="item-price">50 грн</div>
-            <div id="action-dopio"><button class="btn-add" onclick="addToCart('dopio', 'Допіо (70 мл)', 50)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/espesso1.png" alt="Лунго"></div>
-            <div class="item-title">Лунго</div>
-            <div class="item-desc">арабіка 100%, 80 мл</div>
-            <div class="item-price">50 грн</div>
-            <div id="action-lungo"><button class="btn-add" onclick="addToCart('lungo', 'Лунго (80 мл)', 50)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/espesso1.png" alt="Рістрето"></div>
-            <div class="item-title">Рістрето</div>
-            <div class="item-desc">арабіка 100%, 25 мл</div>
-            <div class="item-price">50 грн</div>
-            <div id="action-ristreto"><button class="btn-add" onclick="addToCart('ristreto', 'Рістрето (25 мл)', 50)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/espesso1.png" alt="Американо M"></div>
-            <div class="item-title">Американо M</div>
-            <div class="item-desc">арабіка 100%, 80 мл</div>
-            <div class="item-price">50 грн</div>
-            <div id="action-am_m"><button class="btn-add" onclick="addToCart('am_m', 'Американо M (80 мл)', 50)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/espesso1.png" alt="Американо L"></div>
-            <div class="item-title">Американо L</div>
-            <div class="item-desc">арабіка 100%, 120 мл</div>
-            <div class="item-price">55 грн</div>
-            <div id="action-am_l"><button class="btn-add" onclick="addToCart('am_l', 'Американо L (120 мл)', 55)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/espesso1.png" alt="Американо XL"></div>
-            <div class="item-title">Американо XL</div>
-            <div class="item-desc">арабіка 100%, 250 мл (подвійне еспресо)</div>
-            <div class="item-price">80 грн</div>
-            <div id="action-am_xl"><button class="btn-add" onclick="addToCart('am_xl', 'Американо XL (250 мл)', 80)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/late1.png" alt="Капучино M"></div>
-            <div class="item-title">Капучино M</div>
-            <div class="item-desc">арабіка 100%, 270 мл</div>
-            <div class="item-price">65 грн</div>
-            <div id="action-cap_m"><button class="btn-add" onclick="addToCart('cap_m', 'Капучино M (270 мл)', 65)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/late1.png" alt="Капучино L"></div>
-            <div class="item-title">Капучино L</div>
-            <div class="item-desc">арабіка 100%, 340 мл</div>
-            <div class="item-price">80 грн</div>
-            <div id="action-cap_l"><button class="btn-add" onclick="addToCart('cap_l', 'Капучино L (340 мл)', 80)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/late1.png" alt="Капучино XL"></div>
-            <div class="item-title">Капучино XL</div>
-            <div class="item-desc">арабіка 100%, 400 мл (подвійне еспресо)</div>
-            <div class="item-price">120 грн</div>
-            <div id="action-cap_xl"><button class="btn-add" onclick="addToCart('cap_xl', 'Капучино XL (400 мл)', 120)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/late1.png" alt="Лате M"></div>
-            <div class="item-title">Лате M</div>
-            <div class="item-desc">арабіка 100%, 270 мл</div>
-            <div class="item-price">65 грн</div>
-            <div id="action-lat_m"><button class="btn-add" onclick="addToCart('lat_m', 'Лате M (270 мл)', 65)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/late1.png" alt="Лате L"></div>
-            <div class="item-title">Лате L</div>
-            <div class="item-desc">арабіка 100%, 340 мл</div>
-            <div class="item-price">80 грн</div>
-            <div id="action-lat_l"><button class="btn-add" onclick="addToCart('lat_l', 'Лате L (340 мл)', 80)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/late1.png" alt="Лате XL"></div>
-            <div class="item-title">Лате XL</div>
-            <div class="item-desc">арабіка 100%, 400 мл</div>
-            <div class="item-price">100 грн</div>
-            <div id="action-lat_xl"><button class="btn-add" onclick="addToCart('lat_xl', 'Лате XL (400 мл)', 100)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/late1.png" alt="Флет вайт M"></div>
-            <div class="item-title">Флет вайт M</div>
-            <div class="item-desc">арабіка 100%, 270 мл (подвійне еспресо)</div>
-            <div class="item-price">90 грн</div>
-            <div id="action-flat_m"><button class="btn-add" onclick="addToCart('flat_m', 'Флет вайт M (270 мл)', 90)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/late1.png" alt="Флет вайт L"></div>
-            <div class="item-title">Флет вайт L</div>
-            <div class="item-desc">арабіка 100%, 340 мл (подвійне еспресо)</div>
-            <div class="item-price">110 грн</div>
-            <div id="action-flat_l"><button class="btn-add" onclick="addToCart('flat_l', 'Флет вайт L (340 мл)', 110)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/late1.png" alt="Раф кава M"></div>
-            <div class="item-title">Раф кава M</div>
-            <div class="item-desc">арабіка 100%, 270 мл</div>
-            <div class="item-price">90 грн</div>
-            <div id="action-raf_m"><button class="btn-add" onclick="addToCart('raf_m', 'Раф кава M (270 мл)', 90)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/late1.png" alt="Раф кава L"></div>
-            <div class="item-title">Раф кава L</div>
-            <div class="item-desc">арабіка 100%, 270 мл</div>
-            <div class="item-price">110 грн</div>
-            <div id="action-raf_l"><button class="btn-add" onclick="addToCart('raf_l', 'Раф кава L (270 мл)', 110)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/tea1.png" alt="Чай XL"></div>
-            <div class="item-title">Чай XL</div>
-            <div class="item-desc">400 мл</div>
-            <div class="item-price">40 грн</div>
-            <div id="action-tea_xl"><button class="btn-add" onclick="addToCart('tea_xl', 'Чай XL (400 мл)', 40)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/natural_tea1.png" alt="Натуральний чай XL"></div>
-            <div class="item-title">Натуральний чай XL</div>
-            <div class="item-desc">400 мл</div>
-            <div class="item-price">60 грн</div>
-            <div id="action-ntea_xl"><button class="btn-add" onclick="addToCart('ntea_xl', 'Натуральний чай XL (400 мл)', 60)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/kakao1.png" alt="Какао Nesquik M"></div>
-            <div class="item-title">Какао Nesquik M</div>
-            <div class="item-desc">Nesquik, 270 мл</div>
-            <div class="item-price">70 грн</div>
-            <div id="action-kak_nes_m"><button class="btn-add" onclick="addToCart('kak_nes_m', 'Какао Nesquik M (270 мл)', 70)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/kakao1.png" alt="Какао Nesquik L"></div>
-            <div class="item-title">Какао Nesquik L</div>
-            <div class="item-desc">Nesquik, 340 мл</div>
-            <div class="item-price">90 грн</div>
-            <div id="action-kak_nes_l"><button class="btn-add" onclick="addToCart('kak_nes_l', 'Какао Nesquik L (340 мл)', 90)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/kakao1.png" alt="Какао Nesquik XL"></div>
-            <div class="item-title">Какао Nesquik XL</div>
-            <div class="item-desc">Nesquik, 400 мл</div>
-            <div class="item-price">120 грн</div>
-            <div id="action-kak_nes_xl"><button class="btn-add" onclick="addToCart('kak_nes_xl', 'Какао Nesquik XL (400 мл)', 120)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/kakao1.png" alt="Какао Червоне M"></div>
-            <div class="item-title">Какао Червоне M</div>
-            <div class="item-desc">натуральне червоне какао, 270 мл</div>
-            <div class="item-price">70 грн</div>
-            <div id="action-kak_red_m"><button class="btn-add" onclick="addToCart('kak_red_m', 'Какао Червоне M (270 мл)', 70)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/kakao1.png" alt="Какао Червоне L"></div>
-            <div class="item-title">Какао Червоне L</div>
-            <div class="item-desc">натуральне червоне какао, 340 мл</div>
-            <div class="item-price">90 грн</div>
-            <div id="action-kak_red_l"><button class="btn-add" onclick="addToCart('kak_red_l', 'Какао Червоне L (340 мл)', 90)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/kakao1.png" alt="Какао Червоне XL"></div>
-            <div class="item-title">Какао Червоне XL</div>
-            <div class="item-desc">натуральне червоне какао, 400 мл</div>
-            <div class="item-price">120 грн</div>
-            <div id="action-kak_red_xl"><button class="btn-add" onclick="addToCart('kak_red_xl', 'Какао Червоне XL (400 мл)', 120)">В кошик</button></div>
+    <div id="cat-coffee" class="category-section active">
+        <div class="category-title">Класична кава та напої</div>
+        <div class="products-grid">
+            <div class="product-card" id="p-1">
+                <img src="https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400" class="product-img" alt="Еспресо">
+                <div class="product-name">Еспресо</div>
+                <div class="product-desc">Міцна класична чорна кава для бадьорого ранку.</div>
+                <div class="product-footer">
+                    <div class="product-price">40 грн</div>
+                    <button class="add-btn" onclick="addToCart(1, 'Еспресо', 40)">+ Додати</button>
+                </div>
+            </div>
+            <div class="product-card" id="p-2">
+                <img src="https://images.unsplash.com/photo-1570968915860-54d5c301fc9f?w=400" class="product-img" alt="Капучино">
+                <div class="product-name">Капучино</div>
+                <div class="product-desc">Ідеальний баланс еспресо та ніжної молочної піни.</div>
+                <div class="product-footer">
+                    <div class="product-price">55 грн</div>
+                    <button class="add-btn" onclick="addToCart(2, 'Капучино', 55)">+ Додати</button>
+                </div>
+            </div>
+            <div class="product-card" id="p-3">
+                <img src="https://images.unsplash.com/photo-1534778101976-62847782c213?w=400" class="product-img" alt="Лате">
+                <div class="product-name">Лате</div>
+                <div class="product-desc">Ніжний кавово-молочний напій для затишного дня.</div>
+                <div class="product-footer">
+                    <div class="product-price">60 грн</div>
+                    <button class="add-btn" onclick="addToCart(3, 'Лате', 60)">+ Додати</button>
+                </div>
+            </div>
+            <div class="product-card" id="p-4">
+                <img src="https://images.unsplash.com/photo-1541167760496-1628856ab772?w=400" class="product-img" alt="Флет Вайт">
+                <div class="product-name">Флет Вайт</div>
+                <div class="product-desc">Подвійна порція еспресо з тонким шаром молока.</div>
+                <div class="product-footer">
+                    <div class="product-price">65 грн</div>
+                    <button class="add-btn" onclick="addToCart(4, 'Флет Вайт', 65)">+ Додати</button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="category-title" id="cold_drinks">Прохолодні напої</div>
-    <div class="menu-grid">
-        <div class="item-card">
-            <div class="item-img"><img src="images/icelate1.png" alt="Айс лате L"></div>
-            <div class="item-title">Айс лате L</div>
-            <div class="item-desc">350 мл</div>
-            <div class="item-price">70 грн</div>
-            <div id="action-ice_l"><button class="btn-add" onclick="addToCart('ice_l', 'Айс лате L (350 мл)', 70)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/icelate1.png" alt="Айс лате XL"></div>
-            <div class="item-title">Айс лате XL</div>
-            <div class="item-desc">500 мл</div>
-            <div class="item-price">90 грн</div>
-            <div id="action-ice_xl"><button class="btn-add" onclick="addToCart('ice_xl', 'Айс лате XL (500 мл)', 90)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/gmill1.png" alt="Джміль L"></div>
-            <div class="item-title">Джміль L</div>
-            <div class="item-desc">350 мл</div>
-            <div class="item-price">80 грн</div>
-            <div id="action-bumb_l"><button class="btn-add" onclick="addToCart('bumb_l', 'Джміль L (350 мл)', 80)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/gmill1.png" alt="Джміль XL"></div>
-            <div class="item-title">Джміль XL</div>
-            <div class="item-desc">500 мл</div>
-            <div class="item-price">110 грн</div>
-            <div id="action-bumb_xl"><button class="btn-add" onclick="addToCart('bumb_xl', 'Джміль XL (500 мл)', 110)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/pino_kavada1.png" alt="Піно Кавада L"></div>
-            <div class="item-title">Піно Кавада L</div>
-            <div class="item-desc">350 мл</div>
-            <div class="item-price">80 грн</div>
-            <div id="action-pino_l"><button class="btn-add" onclick="addToCart('pino_l', 'Піно Кавада L (350 мл)', 80)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/pino_kavada1.png" alt="Піно Кавада XL"></div>
-            <div class="item-title">Піно Кавада XL</div>
-            <div class="item-desc">500 мл</div>
-            <div class="item-price">110 грн</div>
-            <div id="action-pino_xl"><button class="btn-add" onclick="addToCart('pino_xl', 'Піно Кавада XL (500 мл)', 110)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/espresso_tonik1.png" alt="Еспресо тонік L"></div>
-            <div class="item-title">Еспресо тонік L</div>
-            <div class="item-desc">350 мл</div>
-            <div class="item-price">70 грн</div>
-            <div id="action-espt_l"><button class="btn-add" onclick="addToCart('espt_l', 'Еспресо тонік L (350 мл)', 70)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/espresso_tonik1.png" alt="Еспресо тонік XL"></div>
-            <div class="item-title">Еспресо тонік XL</div>
-            <div class="item-desc">500 мл</div>
-            <div class="item-price">90 грн</div>
-            <div id="action-espt_xl"><button class="btn-add" onclick="addToCart('espt_xl', 'Еспресо тонік XL (500 мл)', 90)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/milksheik1.png" alt="Мілк шейк L"></div>
-            <div class="item-title">Мілк шейк L</div>
-            <div class="item-desc">350 мл</div>
-            <div class="item-price">80 грн</div>
-            <div id="action-shake_l"><button class="btn-add" onclick="addToCart('shake_l', 'Мілк шейк L (350 мл)', 80)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/milksheik1.png" alt="Мілк шейк XL"></div>
-            <div class="item-title">Мілк шейк XL</div>
-            <div class="item-desc">500 мл</div>
-            <div class="item-price">120 грн</div>
-            <div id="action-shake_xl"><button class="btn-add" onclick="addToCart('shake_xl', 'Мілк шейк XL (500 мл)', 120)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/frappe1.png" alt="Фрапе L"></div>
-            <div class="item-title">Фрапе L</div>
-            <div class="item-desc">350 мл</div>
-            <div class="item-price">90 грн</div>
-            <div id="action-frape_l"><button class="btn-add" onclick="addToCart('frape_l', 'Фрапе L (350 мл)', 90)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/frappe1.png" alt="Фрапе XL"></div>
-            <div class="item-title">Фрапе XL</div>
-            <div class="item-desc">500 мл</div>
-            <div class="item-price">120 грн</div>
-            <div id="action-frape_xl"><button class="btn-add" onclick="addToCart('frape_xl', 'Фрапе XL (500 мл)', 120)">В кошик</button></div>
+    <div id="cat-tea" class="category-section">
+        <div class="category-title">Чаї та зігріваючі напої</div>
+        <div class="products-grid">
+            <div class="product-card" id="p-5">
+                <img src="https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=400" class="product-img" alt="Чай Крафтовий">
+                <div class="product-name">Чай Крафтовий</div>
+                <div class="product-desc">Натуральний ягідний або фруктовий чай з вітамінами.</div>
+                <div class="product-footer">
+                    <div class="product-price">50 грн</div>
+                    <button class="add-btn" onclick="addToCart(5, 'Чай Крафтовий', 50)">+ Додати</button>
+                </div>
+            </div>
+            <div class="product-card" id="p-6">
+                <img src="https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=400" class="product-img" alt="Какао з маршмелоу">
+                <div class="product-name">Какао з маршмелоу</div>
+                <div class="product-desc">Солодкий шоколадний напій, що повертає у дитинство.</div>
+                <div class="product-footer">
+                    <div class="product-price">55 грн</div>
+                    <button class="add-btn" onclick="addToCart(6, 'Какао з маршмелоу', 55)">+ Додати</button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="category-title" id="dops">Допи</div>
-    <div class="menu-grid">
-        <div class="item-card">
-            <div class="item-img"><img src="images/late1.png" alt="Молоко"></div>
-            <div class="item-title">Молоко</div>
-            <div class="item-desc">Добавка у напій</div>
-            <div class="item-price">10 грн</div>
-            <div id="action-milk"><button class="btn-add" onclick="addToCart('milk', 'Доп: Milk', 10)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/late1.png" alt="Молоко безлактозне"></div>
-            <div class="item-title">Молоко безлактозне</div>
-            <div class="item-desc">Добавка у напій</div>
-            <div class="item-price">20 грн</div>
-            <div id="action-milklact"><button class="btn-add" onclick="addToCart('milklact', 'Доп: Безлактозне молоко', 20)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/late1.png" alt="Молоко рослинне"></div>
-            <div class="item-title">Молоко рослинне</div>
-            <div class="item-desc">Добавка у напій</div>
-            <div class="item-price">30 грн</div>
-            <div id="action-milkveg"><button class="btn-add" onclick="addToCart('milkveg', 'Доп: Рослинне молоко', 30)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/espesso1.png" alt="Сироп"></div>
-            <div class="item-title">Сироп</div>
-            <div class="item-desc">В асортименті</div>
-            <div class="item-price">10 грн</div>
-            <div id="action-syrup"><button class="btn-add" onclick="addToCart('syrup', 'Доп: Сироп', 10)">В кошик</button></div>
-        </div>
-    </div>
-
-    <div class="category-title" id="croissants">Круасани</div>
-    <div class="menu-grid">
-        <div class="item-card">
-            <div class="item-img"><img src="images/croassan_shinka1.png" alt="Круасан з шинкою"></div>
-            <div class="item-title">Круасан з шинкою</div>
-            <div class="item-desc">салат фризе, крем-сир, шинка, помідор, огірок, моцарела/гауда, руккола</div>
-            <div class="item-price">120 грн</div>
-            <div id="action-cr_sh"><button class="btn-add" onclick="addToCart('cr_sh', 'Круасан з шинкою', 120)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/croassan_indeika1.png" alt="Круасан з індичкою"></div>
-            <div class="item-title">Круасан з індичкою</div>
-            <div class="item-desc">салат фризе, крем-сир, індичка, помідор, огірок, моцарела/гауда, руккола</div>
-            <div class="item-price">120 грн</div>
-            <div id="action-cr_ind"><button class="btn-add" onclick="addToCart('cr_ind', 'Круасан з індичкою', 120)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/croassan_cheez1.png" alt="Круасан з дор bleu та авокадо"></div>
-            <div class="item-title">Круасан з дор блю та авокадо</div>
-            <div class="item-desc">салат фризе, крем-сир, помідор, огірок, моцарела, дор блю, авокадо, руккола</div>
-            <div class="item-price">140 грн</div>
-            <div id="action-cr_blue"><button class="btn-add" onclick="addToCart('cr_blue', 'Круасан з Дор Блю та авокадо', 140)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/croassan_losos1.png" alt="Круасан з лососем та авокадо"></div>
-            <div class="item-title">Круасан з лососем та авокадо</div>
-            <div class="item-desc">салат фризе, крем-сир, лосось с/с, помідор, огірок, моцарела, авокадо, руккола</div>
-            <div class="item-price">160 грн</div>
-            <div id="action-cr_sal"><button class="btn-add" onclick="addToCart('cr_sal', 'Круасан з лососем та авокадо', 160)">В кошик</button></div>
+    <div id="cat-bakery" class="category-section">
+        <div class="category-title">Свіжа французька випічка</div>
+        <div class="products-grid">
+            <div class="product-card" id="p-7">
+                <img src="https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=400" class="product-img" alt="Круасан класичний">
+                <div class="product-name">Круасан класичний</div>
+                <div class="product-desc">Хрустке листкове тісто на натуральному вершковому маслі.</div>
+                <div class="product-footer">
+                    <div class="product-price">45 грн</div>
+                    <button class="add-btn" onclick="addToCart(7, 'Круасан класичний', 45)">+ Додати</button>
+                </div>
+            </div>
+            <div class="product-card" id="p-8">
+                <img src="https://images.unsplash.com/photo-1629814228943-7a9163f9157a?w=400" class="product-img" alt="Круасан з мигдалем">
+                <div class="product-name">Круасан з мигдалем</div>
+                <div class="product-desc">Наш хіт! З ніжною мигдалевою начинкою та пластівцями.</div>
+                <div class="product-footer">
+                    <div class="product-price">65 грн</div>
+                    <button class="add-btn" onclick="addToCart(8, 'Круасан з мигдалем', 65)">+ Додати</button>
+                </div>
+            </div>
+            <div class="product-card" id="p-9">
+                <img src="https://images.unsplash.com/photo-1608039755401-742074f0548d?w=400" class="product-img" alt="Равлик з корицею">
+                <div class="product-name">Равлик з корицею</div>
+                <div class="product-desc">Ароматна випічка з пряною корицею та цукровою глазур'ю.</div>
+                <div class="product-footer">
+                    <div class="product-price">50 грн</div>
+                    <button class="add-btn" onclick="addToCart(9, 'Равлик з корицею', 50)">+ Додати</button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="category-title" id="bakery">Свіжа випічка</div>
-    <div class="menu-grid">
-        <div class="item-card">
-            <div class="item-img"><img src="images/croassan1.png" alt="Французький круасан з мигдалевою начинкою"></div>
-            <div class="item-title">Круасан з мигдалем</div>
-            <div class="item-desc">Французький круасан з мигдалевою начинкою</div>
-            <div class="item-price">70 грн</div>
-            <div id="action-bak_almond"><button class="btn-add" onclick="addToCart('bak_almond', 'Круасан з мигдалевою начинкою', 70)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/croassan2.png" alt="Французький круасан з фісташковою начинкою"></div>
-            <div class="item-title">Круасан з фісташкою</div>
-            <div class="item-desc">Французький круасан з фісташковою начинкою</div>
-            <div class="item-price">70 грн</div>
-            <div id="action-bak_fistash"><button class="btn-add" onclick="addToCart('bak_fistash', 'Круасан з фісташковою начинкою', 70)">В кошик</button></div>
-        </div>
-    </div>
-
-    <div class="category-title" id="snacks">Гарячі перекуси</div>
-    <div class="menu-grid">
-        <div class="item-card">
-            <div class="item-img"><img src="images/panini1.png" alt="Паніні Цезар XL"></div>
-            <div class="item-title">Паніні Цезар XL</div>
-            <div class="item-desc">куряче м'ясо смажене, моцарела, томати свіжі, соус Цезар</div>
-            <div class="item-price">90 грн</div>
-            <div id="action-pan_cez"><button class="btn-add" onclick="addToCart('pan_cez', 'Паніні Цезар XL', 90)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/panini_kovbasa1.png" alt="Паніні з ковбасками XL"></div>
-            <div class="item-title">Паніні з ковбасками XL</div>
-            <div class="item-desc">ковбаски (свинина/яловичина/сало), морква по-корейськи, майонез</div>
-            <div class="item-price">90 грн</div>
-            <div id="action-pan_kovb"><button class="btn-add" onclick="addToCart('pan_kovb', 'Паніні з ковбасками XL', 90)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/panini_shinka1.png" alt="Паніні з шинкою та сиром XL"></div>
-            <div class="item-title">Паніні з шинкою та сиром XL</div>
-            <div class="item-desc">шинка, моцарела, гірчиця, кріп</div>
-            <div class="item-price">90 грн</div>
-            <div id="action-pan_shyn"><button class="btn-add" onclick="addToCart('pan_shyn', 'Паніні з шинкою та сиром XL', 90)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/hot_dog1.png" alt="Хот-дог"></div>
-            <div class="item-title">Хот-дог</div>
-            <div class="item-desc">з молочною сосискою</div>
-            <div class="item-price">70 грн</div>
-            <div id="action-hotdog"><button class="btn-add" onclick="addToCart('hotdog', 'Хот-дог з молочною сосискою', 70)">В кошик</button></div>
-        </div>
-    </div>
-
-    <div class="category-title" id="sweets">Солодощі</div>
-    <div class="menu-grid">
-        <div class="item-card">
-            <div class="item-img"><img src="images/cheez_cake1.png" alt="Чизкейк"></div>
-            <div class="item-title">Чизкейк</div>
-            <div class="item-desc">Класичний ніжний смак</div>
-            <div class="item-price">85 грн</div>
-            <div id="action-cheesecake"><button class="btn-add" onclick="addToCart('cheesecake', 'Чизкейк', 85)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/rainbow1.png" alt="Торт веселка"></div>
-            <div class="item-title">Торт веселка</div>
-            <div class="item-desc">Яскравий багатошаровий бісквіт</div>
-            <div class="item-price">85 грн</div>
-            <div id="action-rainbow_cake"><button class="btn-add" onclick="addToCart('rainbow_cake', 'Торт веселка', 85)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/gorishki1.png" alt="Горішки зі згущеним молоком (6 од.)"></div>
-            <div class="item-title">Горішки зі згущеним молоком (6 од.)</div>
-            <div class="item-desc">Класичний смак дитинства</div>
-            <div class="item-price">75 грн</div>
-            <div id="action-nuts"><button class="btn-add" onclick="addToCart('nuts', 'Горішки зі згущеним молоком (6 од.)', 75)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/shtrudel1.png" alt="Штрудель з вишнею"></div>
-            <div class="item-title">Штрудель з вишнею</div>
-            <div class="item-desc">Стигла вишня у листковому тісті</div>
-            <div class="item-price">85 грн</div>
-            <div id="action-shtr_v"><button class="btn-add" onclick="addToCart('shtr_v', 'Штрудель з вишнею', 85)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/trubochka1.png" alt="Трубочка зі згущеним молоком"></div>
-            <div class="item-title">Трубочка зі згущеним молоком</div>
-            <div class="item-desc">Хрустке тісто та багато начинки</div>
-            <div class="item-price">75 грн</div>
-            <div id="action-trubochka"><button class="btn-add" onclick="addToCart('trubochka', 'Трубочка зі згущеним молоком', 75)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/macarons1.png" alt="Макаронс в асортименті"></div>
-            <div class="item-title">Макаронс в асортименті</div>
-            <div class="item-desc">Вишукані французькі солодощі</div>
-            <div class="item-price">70 грн</div>
-            <div id="action-macarons"><button class="btn-add" onclick="addToCart('macarons', 'Макаронс в асортименті', 70)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/napoleon1.png" alt="Наполеон"></div>
-            <div class="item-title">Наполеон</div>
-            <div class="item-desc">Листковий торт із ніжним кремом</div>
-            <div class="item-price">70 грн</div>
-            <div id="action-napoleon"><button class="btn-add" onclick="addToCart('napoleon', 'Наполеон', 70)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/ptashino_moloko1.png" alt="Тістечко пташине молоко"></div>
-            <div class="item-title">Тістечко пташине молоко</div>
-            <div class="item-desc">Легке суфле в шоколадній глазурі</div>
-            <div class="item-price">25 грн</div>
-            <div id="action-ptashino"><button class="btn-add" onclick="addToCart('ptashino', 'Тістечко пташине молоко', 25)">В кошик</button></div>
-        </div>
-        <div class="item-card">
-            <div class="item-img"><img src="images/zaher1.png" alt="Захер"></div>
-            <div class="item-title">Захер</div>
-            <div class="item-desc">Шоколадний австрійський торт</div>
-            <div class="item-price">85 грн</div>
-            <div id="action-saher"><button class="btn-add" onclick="addToCart('saher', 'Захер', 85)">В кошик</button></div>
+    <div id="cat-desserts" class="category-section">
+        <div class="category-title">Ніжні тістечка та десерти</div>
+        <div class="products-grid">
+            <div class="product-card" id="p-10">
+                <img src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400" class="product-img" alt="Чізкейк Нью-Йорк">
+                <div class="product-name">Чізкейк Нью-Йорк</div>
+                <div class="product-desc">Класичний сирний десерт на пісочній основі.</div>
+                <div class="product-footer">
+                    <div class="product-price">75 грн</div>
+                    <button class="add-btn" onclick="addToCart(10, 'Чізкейк Нью-Йорк', 75)">+ Додати</button>
+                </div>
+            </div>
+            <div class="product-card" id="p-11">
+                <img src="https://images.unsplash.com/photo-1571115177098-24ec42ed204d?w=400" class="product-img" alt="Тірамісу">
+                <div class="product-name">Тірамісу</div>
+                <div class="product-desc">Кавовий італійський десерт з ніжним маскарпоне.</div>
+                <div class="product-footer">
+                    <div class="product-price">80 грн</div>
+                    <button class="add-btn" onclick="addToCart(11, 'Тірамісу', 80)">+ Додати</button>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
-        tg.expand();
+        tg.expand(); // Розгорнути на весь екран
+        
         let cart = {};
-        const MIN_SUM = 300; 
+        const MIN_SUM = 120; // Мінімальна сума замовлення
 
-        const productsCatalog = {
-            'esp': { name: 'Еспресо (40 мл)', price: 50 },
-            'dopio': { name: 'Допіо (70 мл)', price: 50 },
-            'lungo': { name: 'Лунго (80 мл)', price: 50 },
-            'ristreto': { name: 'Рістрето (25 мл)', price: 50 },
-            'am_m': { name: 'Американо M (80 мл)', price: 50 },
-            'am_l': { name: 'Американо L (120 мл)', price: 55 },
-            'am_xl': { name: 'Американо XL (250 мл)', price: 80 },
-            'cap_m': { name: 'Капучино M (270 мл)', price: 65 },
-            'cap_l': { name: 'Капучино L (340 мл)', price: 80 },
-            'cap_xl': { name: 'Капучино XL (400 мл)', price: 120 },
-            'lat_m': { name: 'Лате M (270 мл)', price: 65 },
-            'lat_l': { name: 'Лате L (340 мл)', price: 80 },
-            'lat_xl': { name: 'Лате XL (400 мл)', price: 100 },
-            'flat_m': { name: 'Флет вайт M (270 мл)', price: 90 },
-            'flat_l': { name: 'Флет вайт L (340 мл)', price: 110 },
-            'raf_m': { name: 'Раф кава M (270 мл)', price: 90 },
-            'raf_l': { name: 'Раф кава L (270 мл)', price: 110 },
-            'tea_xl': { name: 'Чай XL (400 мл)', price: 40 },
-            'ntea_xl': { name: 'Натуральний чай XL (400 мл)', price: 60 },
-            'kak_nes_m': { name: 'Какао Nesquik M (270 мл)', price: 70 },
-            'kak_nes_l': { name: 'Какао Nesquik L (340 мл)', price: 90 },
-            'kak_nes_xl': { name: 'Какао Nesquik XL (400 мл)', price: 120 },
-            'kak_red_m': { name: 'Какао Червоне M (270 мл)', price: 70 },
-            'kak_red_l': { name: 'Какао Червоне L (340 мл)', price: 90 },
-            'kak_red_xl': { name: 'Какао Червоне XL (400 мл)', price: 120 },
-            'ice_l': { name: 'Айс лате L (350 мл)', price: 70 },
-            'ice_xl': { name: 'Айс лате XL (500 мл)', price: 90 },
-            'bumb_l': { name: 'Джміль L (350 мл)', price: 80 },
-            'bumb_xl': { name: 'Джміль XL (500 мл)', price: 110 },
-            'pino_l': { name: 'Піно Кавада L (350 мл)', price: 80 },
-            'pino_xl': { name: 'Піно Кавада XL (500 мл)', price: 110 },
-            'espt_l': { name: 'Еспресо тонік L (350 мл)', price: 70 },
-            'espt_xl': { name: 'Еспресо тонік XL (500 мл)', price: 90 },
-            'shake_l': { name: 'Мілк шейк L (350 мл)', price: 80 },
-            'shake_xl': { name: 'Мілк шейк XL (500 мл)', price: 120 },
-            'frappe_l': { name: 'Фрапе L (350 мл)', price: 90 },
-            'frappe_xl': { name: 'Фрапе XL (500 мл)', price: 120 },
-            'milk': { name: 'Доп: Молоко', price: 10 },
-            'milklact': { name: 'Доп: Безлактозне молоко', price: 20 },
-            'milkveg': { name: 'Доп: Рослинне молоко', price: 30 },
-            'syrup': { name: 'Доп: Сироп', price: 10 },
-            'cr_sh': { name: 'Круасан з шинкою', price: 120 },
-            'cr_ind': { name: 'Круасан з індичкою', price: 120 },
-            'cr_blue': { name: 'Круасан з Дор Блю та авокадо', price: 140 },
-            'cr_sal': { name: 'Круасан з лососем та авокадо', price: 160 },
-            'bak_almond': { name: 'Круасан з мигдалевою начинкою', price: 70 },
-            'bak_fistash': { name: 'Круасан з фісташковою начинкою', price: 70 },
-            'pan_cez': { name: 'Паніні Цезар XL', price: 90 },
-            'pan_kovb': { name: 'Паніні з ковбасками XL', price: 90 },
-            'pan_shyn': { name: 'Паніні з шинкою та сиром XL', price: 90 },
-            'hotdog': { name: 'Хот-дог з молочною сосискою', price: 70 },
-            'cheesecake': { name: 'Чизкейк', price: 85 },
-            'rainbow_cake': { name: 'Торт веселка', price: 85 },
-            'nuts': { name: 'Горішки зі згущеним молоком (6 од.)', price: 75 },
-            'shtr_v': { name: 'Штрудель з вишнею', price: 85 },
-            'trubochka': { name: 'Трубочка зі згущеним молоком', price: 75 },
-            'macarons': { name: 'Макаронс в асортименті', price: 70 },
-            'napoleon': { name: 'Наполеон', price: 70 },
-            'ptashino': { name: 'Тістечко пташине молоко', price: 25 },
-            'saher': { name: 'Захер', price: 85 }
-        };
+        // Функція перемикання категорій
+        function switchCategory(categoryId) {
+            // Перемикаємо вкладки
+            const tabs = document.querySelectorAll('.category-tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            event.currentTarget.classList.add('active');
 
-        function scrollToCategory(id, element) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            element.classList.add('active');
-            
-            const target = document.getElementById(id);
-            if (target) {
-                target.scrollIntoView({ behavior: 'smooth' });
-            }
+            // Перемикаємо розділи з товарами
+            const sections = document.querySelectorAll('.category-section');
+            sections.forEach(section => section.classList.remove('active'));
+            document.getElementById('cat-' + categoryId).classList.add('active');
         }
-
-        window.addEventListener('scroll', () => {
-            const categories = ['hot_drinks', 'cold_drinks', 'dops', 'croissants', 'bakery', 'snacks', 'sweets'];
-            let current = '';
-
-            categories.forEach(id => {
-                const el = document.getElementById(id);
-                if (el) {
-                    const rect = el.getBoundingClientRect();
-                    if (rect.top <= 120) {
-                        current = id;
-                    }
-                }
-            });
-
-            if (current) {
-                document.querySelectorAll('.tab-btn').forEach(btn => {
-                    btn.classList.remove('active');
-                    if (btn.getAttribute('onclick').includes(current)) {
-                        btn.classList.add('active');
-                        btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-                    }
-                });
-            }
-        });
 
         function addToCart(id, name, price) {
-            cart[id] = { name: name, price: price, count: 1 };
-            updateUI(id);
-            updateMainButton();
-        }
-
-        function changeCount(id, delta) {
-            if (!cart[id]) return;
-            cart[id].count += delta;
-            if (cart[id].count <= 0) {
-                delete cart[id];
-                let item = productsCatalog[id] || { name: '', price: 0 };
-                document.getElementById(`action-${id}`).innerHTML = `<button class="btn-add" onclick="addToCart('${id}', '${item.name}', ${item.price})">В кошик</button>`;
-            } else {
-                updateUI(id);
+            if (!cart[id]) {
+                cart[id] = { name: name, price: price, count: 1 };
             }
+            updateDOM(id);
             updateMainButton();
         }
 
-        function updateUI(id) {
-            if (!cart[id]) return;
-            document.getElementById(`action-${id}`).innerHTML = `
-                <div class="btn-counter">
-                    <button onclick="changeCount('${id}', -1)">-</button>
-                    <span>${cart[id].count}</span>
-                    <button onclick="changeCount('${id}', 1)">+</button>
+        function incrementItem(id) {
+            if (cart[id]) {
+                cart[id].count++;
+                updateDOM(id);
+                updateMainButton();
+            }
+        }
+
+        function decrementItem(id) {
+            if (cart[id]) {
+                cart[id].count--;
+                if (cart[id].count <= 0) {
+                    delete cart[id];
+                    resetDOMCard(id);
+                } else {
+                    updateDOM(id);
+                }
+                updateMainButton();
+            }
+        }
+
+        function updateDOM(id) {
+            const card = document.getElementById('p-' + id);
+            if (!card) return;
+            const footer = card.querySelector('.product-footer');
+            const item = cart[id];
+            
+            footer.innerHTML = `
+                <div class=\"product-price\">\${item.price * item.count} грн</div>
+                <div class=\"counter-controls\">
+                    <button class=\"counter-btn\" onclick=\"decrementItem(\${id})\">-</button>
+                    <span class=\"counter-value\">\${item.count}</span>
+                    <button class=\"counter-btn\" onclick=\"incrementItem(\${id})\">+</button>
                 </div>
+            `;
+        }
+
+        function resetDOMCard(id) {
+            const card = document.getElementById('p-' + id);
+            if (!card) return;
+            const footer = card.querySelector('.product-footer');
+            
+            // Відновлюємо дефолтні ціни та назви для кнопок
+            let name = '', price = 0;
+            if (id === 1) { name = 'Еспресо'; price = 40; }
+            else if (id === 2) { name = 'Капучино'; price = 55; }
+            else if (id === 3) { name = 'Лате'; price = 60; }
+            else if (id === 4) { name = 'Флет Вайт'; price = 65; }
+            else if (id === 5) { name = 'Чай Крафтовий'; price = 50; }
+            else if (id === 6) { name = 'Какао з маршмелоу'; price = 55; }
+            else if (id === 7) { name = 'Круасан класичний'; price = 45; }
+            else if (id === 8) { name = 'Круасан з мигдалем'; price = 65; }
+            else if (id === 9) { name = 'Равлик з корицею'; price = 50; }
+            else if (id === 10) { name = 'Чізкейк Нью-Йорк'; price = 75; }
+            else if (id === 11) { name = 'Тірамісу'; price = 80; }
+
+            footer.innerHTML = `
+                <div class=\"product-price\">\${price} грн</div>
+                <button class=\"add-btn\" onclick=\"addToCart(\${id}, '\${name}', \${price})\">+ Додати</button>
             `;
         }
 
         function updateMainButton() {
             let totalSum = 0;
-            let itemsCount = 0;
             for (let id in cart) {
                 totalSum += cart[id].price * cart[id].count;
-                itemsCount += cart[id].count;
             }
 
-            if (itemsCount > 0) {
+            if (totalSum > 0) {
                 if (totalSum < MIN_SUM) {
-                    let diff = MIN_SUM - totalSum;
-                    tg.MainButton.setText(`Додайте ще на ${diff} грн (мін. ${MIN_SUM} грн)`);
-                    tg.MainButton.setParams({
-                        button_color: '#aaaaaa', 
-                        text_color: '#ffffff',
-                        is_active: false 
-                    });
+                    tg.MainButton.setText(`Додайте ще на \${MIN_SUM - totalSum} грн (Мін. \${MIN_SUM} грн)`);
+                    tg.MainButton.disable();
+                    tg.MainButton.setParams({ color: '#a89382' });
                 } else {
-                    tg.MainButton.setText(`Оформити замовлення: ${totalSum} грн`);
-                    tg.MainButton.setParams({
-                        button_color: '#6f4e37', 
-                        text_color: '#ffffff',
-                        is_active: true 
-                    });
+                    tg.MainButton.setText(`Оформити замовлення: \${totalSum} грн`);
+                    tg.MainButton.enable();
+                    tg.MainButton.setParams({ color: '#6f4e37' });
                 }
                 if (!tg.MainButton.isVisible) tg.MainButton.show();
             } else {
@@ -713,7 +402,7 @@
             }
         }
 
-        // НАДІЙНИЙ СПОСОБ ВІДПРАВКИ (З КОРЕКТНИМ ЗАКРИТТЯМ ШТОРКИ)
+        // НАДІЙНИЙ ТА КОРЕКТНИЙ СПОСІБ ВІДПРАВКИ ДАНИХ
         tg.onEvent('mainButtonClicked', function(){
             let totalSum = 0;
             for (let id in cart) {
@@ -732,6 +421,10 @@
             const firstName = initDataUnsafe.user ? initDataUnsafe.user.first_name : "Клієнт";
 
             if (userId) {
+                // Вимикаємо кнопку під час надсилання, щоб уникнути подвійних кліків
+                tg.MainButton.disable();
+                tg.MainButton.setText("Надсилаємо замовлення...");
+
                 fetch('https://artcafe-delivery-bot.onrender.com/submit-order', {
                     method: 'POST',
                     headers: {
@@ -742,9 +435,24 @@
                         first_name: firstName,
                         order: orderData
                     })
+                })
+                .then(response => {
+                    if (response.ok) {
+                        // Закриваємо вікно меню СУВОРО після того, як Render підтвердив успіх
+                        tg.close();
+                    } else {
+                        alert("Помилка сервера: " + response.status);
+                        tg.MainButton.enable();
+                        updateMainButton();
+                    }
+                })
+                .catch((err) => {
+                    alert("Помилка з'єднання: " + err);
+                    tg.MainButton.enable();
+                    updateMainButton();
                 });
-                tg.close();
             } else {
+                // Якщо зайшли зі звичайного браузера на ПК
                 tg.sendData(JSON.stringify(orderData));
                 tg.close();
             }
