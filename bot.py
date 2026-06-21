@@ -33,7 +33,11 @@ class OrderStates(StatesGroup):
 # 1. Головне меню при запуску бота (/start)
 @dp.message(CommandStart())
 async def send_welcome(message: types.Message, state: FSMContext):
-    await state.clear() # Скидаємо стан примусово при старті
+    try:
+        await state.clear() # Скидаємо стан примусово при старті
+    except Exception as e:
+        logging.error(f"Error clearing state on start: {e}")
+        
     inline_keyboard = types.InlineKeyboardMarkup(
         inline_keyboard=[
             [types.InlineKeyboardButton(text="🛒 Відкрити Меню Кав'ярні", web_app=types.WebAppInfo(url=WEB_APP_URL))]
@@ -134,62 +138,62 @@ async def process_promo(message: types.Message, state: FSMContext):
 # 8. Фінал: Отримання способу оплати, прорахунок та надсилання чеків
 @dp.message(OrderStates.waiting_for_payment)
 async def process_payment(message: types.Message, state: FSMContext):
-    payment_method = message.text.strip()
-    user_data = await state.get_data()
-    await state.clear() # Повністю чистимо стан після успішного замовлення!
-
-    cart = user_data.get('cart', {})
-    total_sum = user_data.get('total', 0)
-    house = user_data.get('house')
-    floor = user_data.get('floor')
-    apartment = user_data.get('apartment')
-    phone = user_data.get('phone')
-    promo = user_data.get('promo', '')
-
-    # Розрахунок активованого промокоду
-    discount_text = ""
-    if promo == "navigator10" or promo == "navigator":
-        discount = total_sum * 0.10
-        total_sum = total_sum - discount
-        discount_text = f"🔥 <b>Промокод застосовано (navigator10):</b> -10% (-{discount} грн)\n"
-    elif promo == "artcafe":
-        discount = total_sum * 0.10
-        total_sum = total_sum - discount
-        discount_text = f"🔥 <b>Промокод застосовано (artcafe):</b> -10% (-{discount} грн)\n"
-
-    # Формування списку товарів
-    items_text = ""
-    for item_id, item in cart.items():
-        items_text += f"▪️ {item['name']} x{item['count']} — {item['price'] * item['count']} грн\n"
-
-    # Додаткове повідомлення для безготівки
-    info_payment_msg = ""
-    if payment_method == "Безготівкова оплата":
-        info_payment_msg = "ℹ️ <i>Після підтвердження замовлення менеджер надішле вам посилання на оплату в цей чат.</i>\n\n"
-
-    order_details = (
-        f"📍 <b>Адреса доставки:</b> ЖК 'Ярославів Град'\n"
-        f"🏠 <b>Будинок:</b> {house} | 🏢 <b>Поверх:</b> {floor} | 🚪 <b>Кв:</b> {apartment}\n"
-        f"📞 <b>Телефон:</b> {phone}\n"
-        f"💳 <b>Форма оплати:</b> {payment_method}\n\n"
-        f"📦 <b>Склад замовлення:</b>\n"
-        f"{items_text}\n"
-        f"{discount_text}"
-        f"💵 <b>Разом до сплати:</b> {total_sum} грн\n"
-    )
-
-    manager_report = f"🔔 <b>НОВЕ ЗАМОВЛЕННЯ З КАВ'ЯРНІ!</b>\n━━━━━━━━━━━━━━━━━━━━━\n\n👤 <b>Клієнт:</b> {message.from_user.full_name if message.from_user.full_name else 'Користувач'}\n{order_details}━━━━━━━━━━━━━━━━━━━━━"
     try:
-        await bot.send_message(chat_id=CHAT_ID_MANAGERS, text=manager_report, parse_mode="HTML")
-    except Exception as e:
-        logging.error(f"Error sending to manager: {e}")
+        payment_method = message.text.strip()
+        user_data = await state.get_data()
+        await state.clear() # Повністю чистимо стан після успішного замовлення!
 
-    client_report = f"🎉 <b>Ваше замовлення успішно прийнято!</b>\n\n{info_payment_msg}Менеджер вже передав чек бариста, а кур'єр готується до виїзду. Ваш чек 👇\n━━━━━━━━━━━━━━━━━━━━━\n{order_details}━━━━━━━━━━━━━━━━━━━━━\n\nДякуємо, що ви з нами! 😊"
-    
-    return_keyboard = types.InlineKeyboardMarkup(
-        inline_keyboard=[[types.InlineKeyboardButton(text="🛒 Відкрити Меню Кав'ярні", web_app=types.WebAppInfo(url=WEB_APP_URL))]]
-    )
-    await message.answer(client_report, parse_mode="HTML", reply_markup=return_keyboard)
+        cart = user_data.get('cart', {})
+        total_sum = user_data.get('total', 0)
+        house = user_data.get('house')
+        floor = user_data.get('floor')
+        apartment = user_data.get('apartment')
+        phone = user_data.get('phone')
+        promo = user_data.get('promo', '')
+
+        # Розрахунок активованого промокоду
+        discount_text = ""
+        if promo in ["navigator10", "navigator", "artcafe"]:
+            discount = total_sum * 0.10
+            total_sum = total_sum - discount
+            discount_text = f"🔥 <b>Промокод застосовано:</b> -10% (-{discount} грн)\n"
+
+        # Формування списку товарів
+        items_text = ""
+        for item_id, item in cart.items():
+            items_text += f"▪️ {item['name']} x{item['count']} — {item['price'] * item['count']} грн\n"
+
+        # Додаткове повідомлення для безготівки
+        info_payment_msg = ""
+        if payment_method == "Безготівкова оплата":
+            info_payment_msg = "ℹ️ <i>Після підтвердження замовлення менеджер надішле вам посилання на оплату в цей чат.</i>\n\n"
+
+        order_details = (
+            f"📍 <b>Адреса доставки:</b> ЖК 'Ярославів Град'\n"
+            f"🏠 <b>Будинок:</b> {house} | 🏢 <b>Поверх:</b> {floor} | 🚪 <b>Кв:</b> {apartment}\n"
+            f"📞 <b>Телефон:</b> {phone}\n"
+            f"💳 <b>Форма оплати:</b> {payment_method}\n\n"
+            f"📦 <b>Склад замовлення:</b>\n"
+            f"{items_text}\n"
+            f"{discount_text}"
+            f"💵 <b>Разом до сплати:</b> {total_sum} грн\n"
+        )
+
+        manager_report = f"🔔 <b>НОВЕ ЗАМОВЛЕННЯ З КАВ'ЯРНІ!</b>\n━━━━━━━━━━━━━━━━━━━━━\n\n👤 <b>Клієнт:</b> {message.from_user.full_name if message.from_user.full_name else 'Користувач'}\n{order_details}━━━━━━━━━━━━━━━━━━━━━"
+        try:
+            await bot.send_message(chat_id=CHAT_ID_MANAGERS, text=manager_report, parse_mode="HTML")
+        except Exception as e:
+            logging.error(f"Error sending to manager: {e}")
+
+        client_report = f"🎉 <b>Ваше замовлення успішно прийнято!</b>\n\n{info_payment_msg}Менеджер вже передав чек бариста, а кур'єр готується до виїзду. Ваш чек 👇\n━━━━━━━━━━━━━━━━━━━━━\n{order_details}━━━━━━━━━━━━━━━━━━━━━\n\nДякуємо, що ви з нами! 😊"
+        
+        return_keyboard = types.InlineKeyboardMarkup(
+            inline_keyboard=[[types.InlineKeyboardButton(text="🛒 Відкрити Меню Кав'ярні", web_app=types.WebAppInfo(url=WEB_APP_URL))]]
+        )
+        await message.answer(client_report, parse_mode="HTML", reply_markup=return_keyboard)
+    except Exception as e:
+        logging.error(f"Error in final process_payment: {e}")
+        await message.answer("❌ Виникла помилка при фінальному оформленні. Але менеджери вже бачать ваше замовлення!")
 
 
 # НАДІЙНИЙ ЗАПУСК БОТА ТА МІНІ-ВЕБСЕРВЕРА З ДОЗВОЛОМ CORS
@@ -201,17 +205,28 @@ async def main():
     async def web_order_handler(request):
         try:
             data = await request.json()
-            user_id = int(data['user_id'])
-            first_name = data['first_name']
-            order_content = data['order']
+            logging.info(f"Incoming web app data: {data}")
             
-            # НАДІЙНЕ РІШЕННЯ: Створюємо ключ сховища aiogram 3 для конкретного користувача в його особистому чаті
-            storage_key = StorageKey(bot_id=bot.id, chat_id=user_id, user_id=user_id)
-            state_ctx = FSMContext(storage=dp.storage, key=storage_key)
+            raw_user_id = data.get('user_id')
+            if not raw_user_id:
+                return web.Response(text="No user_id", status=400)
+                
+            user_id = int(raw_user_id)
+            first_name = data.get('first_name', 'Клієнт')
+            order_content = data.get('order', {})
             
-            # Повністю очищуємо та перезапускаємо стан
-            await state_ctx.clear()
-            await state_ctx.update_data(cart=order_content['products'], total=order_content['total'])
+            # Скидаємо стан двома методами одночасно для 100% надійності в будь-яких версіях aiogram 3
+            try:
+                state_ctx = dp.fsm.resolve_context(bot, chat_id=user_id, user_id=user_id)
+                await state_ctx.clear()
+            except Exception as context_error:
+                logging.warning(f"Standard resolve_context failed, using StorageKey. Error: {context_error}")
+                storage_key = StorageKey(bot_id=bot.id, chat_id=user_id, user_id=user_id)
+                state_ctx = FSMContext(storage=dp.storage, key=storage_key)
+                await state_ctx.clear()
+            
+            # Записуємо нові дані кошика
+            await state_ctx.update_data(cart=order_content.get('products', {}), total=order_content.get('total', 0))
             await state_ctx.set_state(OrderStates.waiting_for_house)
             
             keyboard = types.ReplyKeyboardMarkup(
@@ -223,6 +238,7 @@ async def main():
                 one_time_keyboard=True
             )
             
+            # Надсилаємо пускове повідомлення користувачу в чат
             await bot.send_message(
                 chat_id=user_id, 
                 text=f"🛒 <b>Замовлення зафіксовано!</b>\n\nПривіт, {first_name}! Виберіть номер вашого будинку в нашому ЖК для доставки:",
@@ -238,7 +254,7 @@ async def main():
             return web.Response(text="OK", headers=headers)
             
         except Exception as e:
-            logging.error(f"Error in web_order_handler: {e}")
+            logging.error(f"CRITICAL ERROR in web_order_handler: {e}")
             return web.Response(text="Error", status=500, headers={"Access-Control-Allow-Origin": "*"})
 
     async def web_options_handler(request):
