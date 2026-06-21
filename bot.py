@@ -6,6 +6,7 @@ from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
+from aiogram.fsm.storage.base import StorageKey
 
 # Найновіший актуальний токен бота та ID чату менеджерів
 API_TOKEN = '8795191412:AAFVg6NZGR5jb9b9rDvhfBRP6x4jZ1-XYOs'
@@ -167,7 +168,7 @@ async def process_payment(message: types.Message, state: FSMContext):
         info_payment_msg = "ℹ️ <i>Після підтвердження замовлення менеджер надішле вам посилання на оплату в цей чат.</i>\n\n"
 
     order_details = (
-        f"📍 <b>Адреса доставки:</b> ЖК 'Навігатор'\n"
+        f"📍 <b>Адреса доставки:</b> ЖК 'Ярославів Град'\n"
         f"🏠 <b>Будинок:</b> {house} | 🏢 <b>Поверх:</b> {floor} | 🚪 <b>Кв:</b> {apartment}\n"
         f"📞 <b>Телефон:</b> {phone}\n"
         f"💳 <b>Форма оплати:</b> {payment_method}\n\n"
@@ -200,16 +201,16 @@ async def main():
     async def web_order_handler(request):
         try:
             data = await request.json()
-            user_id = data['user_id']
+            user_id = int(data['user_id'])
             first_name = data['first_name']
             order_content = data['order']
             
-            # ОТ ТУТ — ГОЛОВНЕ ОНОВЛЕННЯ:
-            # Перед кожним новим замовленням з сайту примусово чистимо старі завислі стани користувача!
-            state_ctx = dp.fsm.resolve_context(bot, chat_id=user_id, user_id=user_id)
-            await state_ctx.clear()
+            # НАДІЙНЕ РІШЕННЯ: Створюємо ключ сховища aiogram 3 для конкретного користувача в його особистому чаті
+            storage_key = StorageKey(bot_id=bot.id, chat_id=user_id, user_id=user_id)
+            state_ctx = FSMContext(storage=dp.storage, key=storage_key)
             
-            # Записуємо нову корзину і вмикаємо крок вибору будинку
+            # Повністю очищуємо та перезапускаємо стан
+            await state_ctx.clear()
             await state_ctx.update_data(cart=order_content['products'], total=order_content['total'])
             await state_ctx.set_state(OrderStates.waiting_for_house)
             
