@@ -33,11 +33,7 @@ class OrderStates(StatesGroup):
 # 1. Головне меню при запуску бота (/start)
 @dp.message(CommandStart())
 async def send_welcome(message: types.Message, state: FSMContext):
-    try:
-        await state.clear() # Скидаємо стан примусово при старті
-    except Exception as e:
-        logging.error(f"Error clearing state on start: {e}")
-        
+    await state.clear() # Скидаємо стан примусово при старті
     inline_keyboard = types.InlineKeyboardMarkup(
         inline_keyboard=[
             [types.InlineKeyboardButton(text="🛒 Відкрити Меню Кав'ярні", web_app=types.WebAppInfo(url=WEB_APP_URL))]
@@ -45,7 +41,7 @@ async def send_welcome(message: types.Message, state: FSMContext):
     )
     await message.answer(
         f"Привіт, {message.from_user.first_name}! 👋\n\n"
-        f"Раді вітати тебе у нашій кав'ярні! Обережно, тут найсмачніша випічка та кава у всьому ЖК! 🥐☕\n\n"
+        f"Раді вітати тебе у нашій кав'ярні! Обережно, тут найсмачніша випічка та кава! 🥐☕\n\n"
         f"Натискай кнопку нижче, щоб відкрити меню та зробити замовлення. Доставка прямо до дверей безкоштовна! 🚀",
         reply_markup=inline_keyboard
     )
@@ -54,7 +50,7 @@ async def send_welcome(message: types.Message, state: FSMContext):
 @dp.message(F.web_app_data)
 async def handle_web_app_data(message: types.Message, state: FSMContext):
     try:
-        await state.clear() # Очищаємо старі замовлення
+        await state.clear() 
         raw_data = message.web_app_data.data
         order_json = json.loads(raw_data)
         await state.update_data(cart=order_json['products'], total=order_json['total'])
@@ -141,7 +137,9 @@ async def process_payment(message: types.Message, state: FSMContext):
     try:
         payment_method = message.text.strip()
         user_data = await state.get_data()
-        await state.clear() # Повністю чистимо стан після успішного замовлення!
+        
+        # Повністю очищуємо стан клієнта після оформлення чека
+        await state.clear() 
 
         cart = user_data.get('cart', {})
         total_sum = user_data.get('total', 0)
@@ -168,8 +166,9 @@ async def process_payment(message: types.Message, state: FSMContext):
         if payment_method == "Безготівкова оплата":
             info_payment_msg = "ℹ️ <i>Після підтвердження замовлення менеджер надішле вам посилання на оплату в цей чат.</i>\n\n"
 
+        # Змінено назву ЖК на ЖК НАВІГАТОР
         order_details = (
-            f"📍 <b>Адреса доставки:</b> ЖК 'Ярославів Град'\n"
+            f"📍 <b>Адреса доставки:</b> ЖК 'Навігатор'\n"
             f"🏠 <b>Будинок:</b> {house} | 🏢 <b>Поверх:</b> {floor} | 🚪 <b>Кв:</b> {apartment}\n"
             f"📞 <b>Телефон:</b> {phone}\n"
             f"💳 <b>Форма оплати:</b> {payment_method}\n\n"
@@ -187,13 +186,15 @@ async def process_payment(message: types.Message, state: FSMContext):
 
         client_report = f"🎉 <b>Ваше замовлення успішно прийнято!</b>\n\n{info_payment_msg}Менеджер вже передав чек бариста, а кур'єр готується до виїзду. Ваш чек 👇\n━━━━━━━━━━━━━━━━━━━━━\n{order_details}━━━━━━━━━━━━━━━━━━━━━\n\nДякуємо, що ви з нами! 😊"
         
+        # Повертаємо стартову кнопку відкриття меню на кожне нове замовлення
         return_keyboard = types.InlineKeyboardMarkup(
             inline_keyboard=[[types.InlineKeyboardButton(text="🛒 Відкрити Меню Кав'ярні", web_app=types.WebAppInfo(url=WEB_APP_URL))]]
         )
         await message.answer(client_report, parse_mode="HTML", reply_markup=return_keyboard)
+        
     except Exception as e:
         logging.error(f"Error in final process_payment: {e}")
-        await message.answer("❌ Виникла помилка при фінальному оформленні. Але менеджери вже бачать ваше замовлення!")
+        await message.answer("❌ Виникла помилка при фінальному оформленні.")
 
 
 # НАДІЙНИЙ ЗАПУСК БОТА ТА МІНІ-ВЕБСЕРВЕРА З ДОЗВОЛОМ CORS
@@ -215,19 +216,14 @@ async def main():
             first_name = data.get('first_name', 'Клієнт')
             order_content = data.get('order', {})
             
-            # Скидаємо стан двома методами одночасно для 100% надійності в будь-яких версіях aiogram 3
-            try:
-                state_ctx = dp.fsm.resolve_context(bot, chat_id=user_id, user_id=user_id)
-                await state_ctx.clear()
-            except Exception as context_error:
-                logging.warning(f"Standard resolve_context failed, using StorageKey. Error: {context_error}")
-                storage_key = StorageKey(bot_id=bot.id, chat_id=user_id, user_id=user_id)
-                state_ctx = FSMContext(storage=dp.storage, key=storage_key)
-                await state_ctx.clear()
+            # Отримуємо чистий контекст FSM через StorageKey для 100% точності
+            storage_key = StorageKey(bot_id=bot.id, chat_id=user_id, user_id=user_id)
+            state_ctx = FSMContext(storage=dp.storage, key=storage_key)
             
-            # Записуємо нові дані кошика
-            await state_ctx.update_data(cart=order_content.get('products', {}), total=order_content.get('total', 0))
+            # ПРИМУСОВО ОБНУЛЯЄМО СТАН І СТАВИМО КРОК ВИБОРУ БУДИНКУ ЗАНОГО Клієнту
+            await state_ctx.clear()
             await state_ctx.set_state(OrderStates.waiting_for_house)
+            await state_ctx.update_data(cart=order_content.get('products', {}), total=order_content.get('total', 0))
             
             keyboard = types.ReplyKeyboardMarkup(
                 keyboard=[
