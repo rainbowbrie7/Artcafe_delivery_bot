@@ -108,17 +108,7 @@ async def process_promo(message: types.Message, state: FSMContext):
     
     if user_id in USER_ORDERS:
         USER_ORDERS[user_id]['promo'] = promo
-
-    keyboard = types.ReplyKeyboardMarkup(
-        keyboard=[
-            [types.KeyboardButton(text="Готівка")],
-            [types.KeyboardButton(text="Bezgotivka")]  # Избегаем конфликтов кириллицы в некоторых сборках
-        ],
-        resize_keyboard=True,
-        one_time_keyboard=True
-    )
     
-    # Фикс: Принудительное текстовое меню выбора оплаты
     inline_pay = types.InlineKeyboardMarkup(
         inline_keyboard=[
             [types.InlineKeyboardButton(text="💵 Готівка", callback_data="pay_cash")],
@@ -164,7 +154,7 @@ async def process_payment_callback(callback: types.CallbackQuery, state: FSMCont
     if pay_method == "Безготівкова оплата":
         info_payment_msg = "ℹ️ <i>Після підтвердження замовлення менеджер надішле вам посилання на оплату в цей чат.</i>\n\n"
 
-    # Чітко встановлено ЖК Навігатор
+    # Встановлено ЖК НАВІГАТОР
     order_details = (
         f"📍 <b>Адреса доставки:</b> ЖК 'Навігатор'\n"
         f"🏠 <b>Будинок:</b> {house} | 🏢 <b>Поверх:</b> {floor} | 🚪 <b>Кв:</b> {apartment}\n"
@@ -188,11 +178,9 @@ async def process_payment_callback(callback: types.CallbackQuery, state: FSMCont
         inline_keyboard=[[types.InlineKeyboardButton(text="🛒 Відкрити Меню Кав'ярні", web_app=types.WebAppInfo(url=WEB_APP_URL))]]
     )
     
-    # Видаляємо інлайн-кнопки вибору оплати, щоб користувач не клікав двічі
     await callback.message.edit_reply_markup(reply_markup=None)
     await callback.message.answer(client_report, parse_mode="HTML", reply_markup=return_keyboard)
     
-    # Очищаємо замовлення з пам'яті
     if user_id in USER_ORDERS:
         del USER_ORDERS[user_id]
 
@@ -211,7 +199,6 @@ async def main():
             first_name = data.get('first_name', 'Клієнт')
             order_content = data.get('order', {})
             
-            # Жорстко записуємо замовлення у незалежну пам'ять (перезаписує старе замовлення назавжди)
             USER_ORDERS[user_id] = {
                 'cart': order_content.get('products', {}),
                 'total': order_content.get('total', 0),
@@ -222,7 +209,6 @@ async def main():
                 'promo': None
             }
             
-            # Створюємо зручні інлайн-кнопки прямо в повідомленні
             inline_houses = types.InlineKeyboardMarkup(
                 inline_keyboard=[
                     [types.InlineKeyboardButton(text="🏠 Будинок 1", callback_data="house_1"),
@@ -232,7 +218,6 @@ async def main():
                 ]
             )
             
-            # Відправляємо пускове повідомлення користувачу
             await bot.send_message(
                 chat_id=user_id, 
                 text=f"🛒 <b>Замовлення зафіксовано!</b>\n\nПривіт, {first_name}! Виберіть номер вашого будинку в нашому <b>ЖК 'Навігатор'</b> для безкоштовної доставки прямо до дверей:",
